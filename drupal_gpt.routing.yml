@@ -1,7 +1,7 @@
 drupal_gpt.settings_form:
   path: '/admin/config/drupal_gpt/settings'
   defaults:
-    _form: '\Drupal\drupal_gpt\Form\MyModuleSettingsForm'
-    _title: 'My Module Settings'
+    _form: '\Drupal\drupal_gpt\Form\DrupalGPTSettingsForm'
+    _title: 'DrupalGPT Settings'
   requirements:
     _permission: 'administer site configuration'

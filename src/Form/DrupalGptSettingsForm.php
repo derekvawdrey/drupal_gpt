@@ -5,7 +5,7 @@ namespace Drupal\drupal_gpt\Form;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 
-class MyModuleSettingsForm extends ConfigFormBase {
+class DrupalGPTSettingsForm extends ConfigFormBase {
 
   // Implement getFormId() to define a unique form ID.
   public function getFormId() {
