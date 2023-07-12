@@ -13,7 +13,7 @@ bundle: drupal_gpt_session
 label: 'Drupal GPT Session JSON data'
 description: 'Chat information is stored in JSON'
 required: true
-translatable: true
+translatable: false
 default_value: {  }
 default_value_callback: ''
 settings:

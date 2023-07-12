@@ -2,10 +2,8 @@ langcode: en
 status: true
 dependencies:
   config:
-    - field.storage.node.body
+    - field.storage.node.timestamp
     - node.type.drupal_gpt_session
-  module:
-    - text
 id: node.drupal_gpt_session.session_timestamp
 field_name: session_timestamp
 entity_type: node
