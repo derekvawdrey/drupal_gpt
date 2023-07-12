@@ -5,3 +5,5 @@ drupal_gpt.settings_form:
     _title: 'DrupalGPT Settings'
   requirements:
     _permission: 'administer site configuration'
+  options:
+    _admin_route: TRUE
