@@ -1,0 +1,21 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.body
+    - node.type.drupal_gpt_session
+  module:
+    - text
+id: node.drupal_gpt_session.session_information
+field_name: session_information
+entity_type: node
+bundle: drupal_gpt_session
+label: 'Drupal GPT Session JSON data'
+description: 'Chat information is stored in JSON'
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  display_summary: true
+field_type: text_with_summary

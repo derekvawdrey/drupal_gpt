@@ -1,0 +1,18 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - text
+id: node.drupal_gpt_session.session_id
+field_name: session_id
+entity_type: node
+bundle: drupal_gpt_session
+label: 'Session ID'
+description: 'Stores the session ID'
+required: true
+translatable: false
+default_value: { }
+default_value_callback: ''
+settings:
+  max_length: 255
+field_type: string

@@ -1,0 +1,20 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.body
+    - node.type.drupal_gpt_session
+  module:
+    - text
+id: node.drupal_gpt_session.session_timestamp
+field_name: session_timestamp
+entity_type: node
+bundle: drupal_gpt_session
+label: 'Timestamp'
+description: 'Stores the timestamp of the session'
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: timestamp

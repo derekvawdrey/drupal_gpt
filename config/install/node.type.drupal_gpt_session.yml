@@ -1,0 +1,11 @@
+langcode: en
+status: true
+dependencies:
+  enforced:
+    module:
+      - drupal_gpt
+name: 'DrupalGPT Session'
+type: drupal_gpt_session
+description: 'Content type to keep track of DrupalGPT Sessions'
+help: ''
+display_submitted: true
