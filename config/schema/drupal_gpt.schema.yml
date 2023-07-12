@@ -1,0 +1,10 @@
+drupal_gpt.settings:
+  type: config_object
+  label: 'DrupalGPT configuration settings'
+  mapping:
+    openai_key:
+      type: text
+      label: 'Your OpenAI key'
+    openai_model:
+      type: text
+      label: 'What model do you want the chatbot to use?'
