@@ -27,8 +27,8 @@ class DrupalGPTMessage {
             Text: how many education majors are there?
             Response: Could you please provide me with a comprehensive list of education majors offered for enrollment specifically at the McKay School of Education, located at Brigham Young University (BYU)? I'm interested in knowing the various education majors that students can pursue within the McKay School of Education at BYU.
             ###
-            Text: where can I find my advisors
-            Response: Where can I find information about my advisors at the McKay School of Education at BYU? I am looking to either meet with them, talk with them, or send them an email.
+            Text: what is eled?
+            Response: What does the program, major, or department ElEd stand for? What do they do, and what do they offer?
             ###"
             ],
             [
