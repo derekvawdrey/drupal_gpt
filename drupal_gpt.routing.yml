@@ -7,3 +7,11 @@ drupal_gpt.settings_form:
     _permission: 'administer site configuration'
   options:
     _admin_route: TRUE
+
+###### API ROUTES ######
+drupal_gpt.open_ai_call:
+  path: '/api/open_ai/converse'
+  defaults:
+    _controller: '\Drupal\drupal_gpt\Controller\ApiController::testPrompt'
+  requirements:
+    _permission: 'access content'
