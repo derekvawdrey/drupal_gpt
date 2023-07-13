@@ -2,17 +2,18 @@ langcode: en
 status: true
 dependencies:
   config:
-    - field.storage.node.timestamp
+    - field.storage.node.chat_session_timestamp
     - node.type.drupal_gpt_session
-id: node.drupal_gpt_session.session_timestamp
-field_name: session_timestamp
+id: node.drupal_gpt_session.chat_session_timestamp
+field_name: chat_session_timestamp
 entity_type: node
 bundle: drupal_gpt_session
-label: 'Timestamp'
-description: 'Stores the timestamp of the session'
+label: 'DrupalGPT Session Id'
+description: ''
 required: true
 translatable: false
 default_value: {  }
 default_value_callback: ''
-settings: {  }
+settings:
+  allowed_formats: {  }
 field_type: timestamp

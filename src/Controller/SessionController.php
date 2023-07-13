@@ -18,10 +18,7 @@ class SessionController extends ControllerBase {
      * 
      */
     public function initSession($request){
-        // Get the session manager.
-        $session_manager = \Drupal::service('session_manager');
-        // Retrieve the session identifier from the form.
-        $gpt_session = new DrupalGPTSession();
-        $session_id = $gpt_session->getSessionId();
+        // Check if session exists inside 
+        
     }
 }

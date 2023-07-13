@@ -6,14 +6,14 @@ dependencies:
     - node.type.drupal_gpt_session
   module:
     - text
-id: node.drupal_gpt_session.session_information
-field_name: session_information
+id: node.drupal_gpt_session.body
+field_name: body
 entity_type: node
 bundle: drupal_gpt_session
-label: 'Drupal GPT Session JSON data'
-description: 'Chat information is stored in JSON'
-required: true
-translatable: false
+label: 'Drupal Session Detail'
+description: 'Information regarding the DrupalGPT sessions'
+required: false
+translatable: true
 default_value: {  }
 default_value_callback: ''
 settings:

@@ -1,0 +1,19 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.chat_session_id
+    - node.type.drupal_gpt_session
+id: node.drupal_gpt_session.chat_session_id
+field_name: chat_session_id
+entity_type: node
+bundle: drupal_gpt_session
+label: 'DrupalGPT Session Id'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats: {  }
+field_type: text_long

@@ -8,12 +8,12 @@ class ApiController extends ControllerBase {
 
     private function getApiKey(){
         $config = \Drupal::config('drupal_gpt.settings');
-        $mySetting = $config->get('openai_key');
+         return $config->get('openai_key');
     }
     
     private function getGptModel(){
         $config = \Drupal::config('drupal_gpt.settings');
-        $mySetting = $config->get('openai_model');
+        return $config->get('openai_model');
     }
     
     public function handleMessage($sessionId, $message) {
@@ -34,15 +34,6 @@ class ApiController extends ControllerBase {
 
         // Return a response indicating session not found or inactive
         return new JsonResponse(['status' => 'error', 'message' => 'Invalid session']);
-    }
-
-    private function getSession($sessionId) {
-        // Retrieve the session object based on the provided session ID
-        // Implement your logic here to fetch the session from storage
-        // For example, you can use Drupal's session management or a custom storage mechanism
-
-        // Return the session object or null if not found
-        return null;
     }
 
 }
