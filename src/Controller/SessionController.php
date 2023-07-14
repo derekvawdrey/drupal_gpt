@@ -12,7 +12,7 @@ class SessionController extends ControllerBase {
     protected ApiController $api_controller;
     protected DrupalGPTPrompt $drupal_gpt_prompt;
 
-    function __construct($message){
+    function __construct(){
         $this->api_controller = new ApiController();
     }
 
