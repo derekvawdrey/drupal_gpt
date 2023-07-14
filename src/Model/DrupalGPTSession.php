@@ -36,7 +36,7 @@ class DrupalGPTSession {
      */
     private function loadMessagesFromNode(){
         $this->message_chain = [];
-        $json = json_decode($this->session_node->get("body"));
+        $json = json_encode($this->session_node->get("body")->value);
         foreach($json as $message){
             $accuracy = $json["accuracy"];
             $context = $json["context"];
@@ -66,6 +66,8 @@ class DrupalGPTSession {
         $this->session_node->save();
     }
 
-    
+    public function generateMessageArray(){
+        // Do this
+    }
 
 }
