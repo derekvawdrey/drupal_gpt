@@ -15,7 +15,7 @@ class DrupalGPTSession {
     // Should be of type drupal_gpt_session that is defined in the config/install
     protected Node $session_node;
 
-    function __contruct($session_id, $session_node){
+    function __construct($session_id, $session_node){
         $this->session_id = $session_id;
         $this->session_node = $session_node;
         $this->message_chain = [];
@@ -47,7 +47,6 @@ class DrupalGPTSession {
     }
 
     private function saveToNode(){
-        $this->loadMessagesFromNode();
         $json = [
             "messages"=>[]
         ];
