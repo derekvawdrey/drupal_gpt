@@ -30,7 +30,7 @@ class SessionController extends ControllerBase {
         // Check if session exists inside 
         $query = \Drupal::entityQuery('node')
             ->condition('type', 'drupal_gpt_session')
-            ->condition('field_chat_session_id', $session_id);
+            ->condition('chat_session_id', $session_id);
         $nids = $query->execute();
 
         // Either way we will load the node
@@ -41,6 +41,7 @@ class SessionController extends ControllerBase {
         }else{
             $node = \Drupal\node\Entity\Node::create([
                 'type' => 'drupal_gpt_session',
+                'title' => $session_id,
                 'chat_session_id' => $session_id,
                 'chat_session_timestamp' => time(),
                 'body' => "",

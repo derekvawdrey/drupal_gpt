@@ -14,8 +14,8 @@ class DrupalGPTMessage {
     protected string $message_author;
 
     // Determines if the message is a previous message or not
-    protected boolean $already_processed;
-    protected boolean $ai_response;
+    protected bool $already_processed;
+    protected bool $ai_response;
     
     // Determines if the previous message was accuracy
     protected float $accuracy;
