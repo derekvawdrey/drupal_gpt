@@ -47,7 +47,7 @@ class DrupalGPTSession {
     }
 
     private function saveToNode(){
-        
+        $this->loadMessagesFromNode();
         $json = [
             "messages"=>[]
         ];
