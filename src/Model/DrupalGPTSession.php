@@ -18,6 +18,7 @@ class DrupalGPTSession {
     function __contruct($session_id, $session_node){
         $this->session_id = $session_id;
         $this->session_node = $session_node;
+        $this->message_chain = [];
         $this->loadMessagesFromNode();
     }
     
@@ -34,6 +35,7 @@ class DrupalGPTSession {
      * 
      */
     private function loadMessagesFromNode(){
+        $this->message_chain = [];
         $json = json_decode($this->session_node->get("body"));
         foreach($json as $message){
             $accuracy = $json["accuracy"];
@@ -45,6 +47,7 @@ class DrupalGPTSession {
     }
 
     private function saveToNode(){
+        
         $json = [
             "messages"=>[]
         ];
