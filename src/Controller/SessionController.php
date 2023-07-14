@@ -4,6 +4,7 @@ namespace Drupal\drupal_gpt\Controller;
 
 use Drupal\drupal_gpt\Model\DrupalGPTSession;
 use Drupal\Core\Controller\ControllerBase;
+use Symfony\Component\HttpFoundation\Request;
 
 class SessionController extends ControllerBase {
 
@@ -71,5 +72,11 @@ class SessionController extends ControllerBase {
                     ],
             ]
         );
+    }
+
+    public function processMessageEndpoint(Request $request){
+        $message = $request->query->get('message');
+        $session_id = $request->query->get('session_id');
+        return $this->processUserMessage($session_id, $message);
     }
 }
