@@ -18,7 +18,7 @@ class DrupalGPTSession {
     function __contruct($session_id, $session_node){
         $this->session_id = $session_id;
         $this->session_node = $session_node;
-        $this->generateMessageArray();
+        $this->loadMessagesFromNode();
     }
     
     public function addMessage($message, $context = "", $already_processed = false, $ai_response = true){
@@ -33,10 +33,6 @@ class DrupalGPTSession {
      * Load from node to fill message_chain
      * 
      */
-    public function generateMessageArray(){
-        $this->session_node;
-    }
-
     private function loadMessagesFromNode(){
         $json = json_decode($this->session_node->get("body"));
         foreach($json as $message){
@@ -63,6 +59,7 @@ class DrupalGPTSession {
 
             $json["messages"][] = $message_json;
         }
+        $this->session_node->set("chat_session_timestamp",time());
         $this->session_node->set("body",json_encode($json));
         $this->session_node->save();
     }

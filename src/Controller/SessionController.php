@@ -55,20 +55,21 @@ class SessionController extends ControllerBase {
      * Handle a user message and generate an API response
      * 
      */
-    public function processUserMessage($session_id, $message){
+    private function processUserMessage($session_id, $message){
         $session = $this->getSession($session_id);
-        $session->chat_session_timestamp = time();
         $session->addMessage($message, "", true, false);
 
         $ai_message_context = $this->api_controller->getContextFromMessage($message);
         $ai_message_text = $this->api_controller->returnMessageChainText($session->generateMessageArray());
         $message_object = $session->addMessage($ai_message_text, $ai_message_context);
-        return new JsonResponse([
+        return new JsonResponse(
+            [
                 "message" => 
                     [ 
                         "accuracy" => $message_object->getAccuracy(),
                         "message" => $message_object->getMessage()
                     ],
-            ]);
-        }
+            ]
+        );
+    }
 }
