@@ -27,7 +27,7 @@ class DrupalGPTMessage {
         $this->already_processed = $already_processed;
         $this->ai_response = $ai_response;
 
-        $this->message_author = "system";
+        $this->message_author = "user";
         if($this->ai_response) $this->message_author = "assistant";
 
         if(!$already_processed && $ai_response){

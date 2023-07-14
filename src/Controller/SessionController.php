@@ -5,6 +5,7 @@ namespace Drupal\drupal_gpt\Controller;
 use Drupal\drupal_gpt\Model\DrupalGPTSession;
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class SessionController extends ControllerBase {
 

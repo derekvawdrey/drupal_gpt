@@ -4,6 +4,7 @@ namespace Drupal\drupal_gpt\Model;
 
 use Drupal\node\Entity\Node;
 use Drupal\drupal_gpt\Controller\ApiController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class DrupalGPTSession {
 
@@ -24,7 +25,7 @@ class DrupalGPTSession {
     
     public function addMessage($message, $context = "", $already_processed = false, $ai_response = true){
         $drupal_gpt_message = new DrupalGPTMessage($message, $context, $already_processed, $ai_response);
-        $message_chain[] = $drupal_gpt_message;
+        $this->message_chain[] = $drupal_gpt_message;
         $this->saveToNode();
         return $drupal_gpt_message;
     }
@@ -36,13 +37,14 @@ class DrupalGPTSession {
      */
     private function loadMessagesFromNode(){
         $this->message_chain = [];
-        $json = json_encode($this->session_node->get("body")->value);
-        foreach($json as $message){
-            $accuracy = $json["accuracy"];
-            $context = $json["context"];
+        $json = json_decode($this->session_node->get("body")->value, true);
+        \Drupal::logger("DrupalGPT")->info(json_encode($json,true));
+        foreach($json["messages"] as $message){
+            $accuracy = $message["accuracy"];
+            $context = $message["context"];
             $ai_response = false;
-            if($json["role"]=="assistant") $ai_response = true;
-            $this->message_chain[] = new DrupalGPTMessage($json["content"], "", true, true, $accuracy);
+            if($json["role"] == "assistant") $ai_response = true;
+            $this->message_chain[] = new DrupalGPTMessage($message["content"], "", true, true, $accuracy);
         }
     }
 
@@ -62,12 +64,24 @@ class DrupalGPTSession {
             $json["messages"][] = $message_json;
         }
         $this->session_node->set("chat_session_timestamp",time());
-        $this->session_node->set("body",json_encode($json));
+        $this->session_node->set("body",json_encode($json,true));
         $this->session_node->save();
     }
 
     public function generateMessageArray(){
         // Do this
+        $messages = [];
+        foreach($this->message_chain as $message){
+            $message_json = [
+                "content"=>$message->getMessage(),
+                "role"=>$message->getMessageAuthor(),
+            ];
+
+
+            $messages[] = $message_json;
+        }
+        \Drupal::logger("DrupalGPT")->info(json_encode($messages, true));
+        return $messages;
     }
 
 }

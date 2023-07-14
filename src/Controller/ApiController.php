@@ -55,7 +55,7 @@ class ApiController extends ControllerBase {
      * @return 
      * 
      */
-    private function messageAccuracyVerification($message, $context, int $max_tokens = 250, float $temperatire = 0.7){
+    private function messageAccuracyVerification($message, $context, int $max_tokens = 250, float $temperature = 0.7){
         
         $prompt = [
             [
@@ -97,7 +97,14 @@ class ApiController extends ControllerBase {
 
 
     public function getContextFromMessage($message){
-        return "";
+        return "
+        Graduation requirements
+        Complete 68-69 credits of coursework
+        No grade lower than a C in any program course
+        14-week student teaching OR full year paid internship
+        Pass the Praxis II exam
+        Application for licensure with the Utah State Board of Education
+        ";
     }
 
     /**
