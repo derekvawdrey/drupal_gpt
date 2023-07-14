@@ -17,8 +17,6 @@ class ApiController extends ControllerBase {
         return $config->get('openai_model');
     }
     
-    
-
     /**
      * 
      * This is for a message chain, not a single prompt
@@ -48,32 +46,90 @@ class ApiController extends ControllerBase {
         return json_decode($result,true);
     }
 
-    public function testPrompt(){
+    /**
+     * 
+     * @param String $message
+     * @param String $context
+     * @param int $max_tokens
+     * @param int $temperature
+     * @return 
+     * 
+     */
+    private function messageAccuracyVerification($message, $context, int $max_tokens = 250, float $temperatire = 0.7){
+        
         $prompt = [
-            ["role" => "system",
-            "content"=>"
-            Optimize the text to be more specific and explain exactly what the user wants in relation to Brigham Young University (BYU) and the McKay School of Education.
-            The optimized text should be specific to Brigham Young University and the McKay School of Education.
-            Examples are incased in '###'
-            ###
-            Text: how many education majors are there?
-            Response: Could you please provide me with a comprehensive list of education majors offered for enrollment specifically at the McKay School of Education, located at Brigham Young University (BYU)? I'm interested in knowing the various education majors that students can pursue within the McKay School of Education at BYU.
-            ###
-            Text: what is eled?
-            Response: What does the program, major, or department ElEd stand for? What do they do, and what do they offer?
-            ###"
-            ],
             [
                 "role" => "system",
-                "content" => "Text: what is TED for?
-                                Response:"
-            ]
+                "content"=>"You are to determine if a message is accurate to factual data. 
+                You will respond only with a decimal representation of the accuracy of the data: 1 is accurate, 0 is inaccurate. 
+                Based on the context provided below, you will determine if the message is accurate.
+                Context:
+                ###" . $context . "###"
+            ],
+            [
+                "role" => "user",
+                "content" => $message
+            ],
         ];
-        return new JsonResponse([""=>$this->returnMessageChainText($prompt,100,0)]);
+        
+        $ch = curl_init();
+        $url = 'https://api.openai.com/v1/chat/completions';
+        $api_key = $this->getApiKey();
+        $post_fields = array(
+            "model" => $this->getGptModel(),
+            "messages" => $prompt,
+            "max_tokens" => $max_tokens,
+            "temperature" => $temperature
+        );
+        $header = [
+            'Content-Type: application/json',
+            'Authorization: Bearer '. $api_key
+        ];
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post_fields));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+        $result = curl_exec($ch);
+        curl_close($ch);
+        return json_decode($result,true);
     }
 
+
+    public function getContextFromMessage($message){
+        return "";
+    }
+
+    /**
+     * 
+     * @param String $message
+     * @param String $context
+     * @param int $max_tokens
+     * @param int $temperature
+     * @return boolean
+     * 
+     */
+    public function getMessageAccurate($message, $context, int $max_tokens = 250, float $temperature = 0.7){
+        $return_string = $this->messageAccuracyVerification($message, $context, $max_tokens, $temperature);
+        $return_message = "";
+        if (isset($return_string["choices"])){
+            $return_message = $return_string["choices"][0]["message"]["content"];
+            return (float)$return_message;
+        }
+        return 0;
+    }
+
+    /**
+     * 
+     * @param array $messages
+     * @param int $max_tokens
+     * @param int $temperature
+     * 
+     */
     public function returnMessageChainText($messages, int $max_tokens = 250, float $temperature = 0.7){
-        return $this->messageChainAICall($messages,$max_tokens,$temperature)["choices"][0]["message"]["content"];
+        $message_response = $this->messageChainAICall($messages, $max_tokens, $temperature);
+        if(isset($message_response["choices"])) return $message_response["choices"][0]["message"]["content"];
+        return "There was an error generating the response.";
     }
 
 }

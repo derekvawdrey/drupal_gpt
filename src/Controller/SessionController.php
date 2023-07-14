@@ -7,6 +7,14 @@ use Drupal\Core\Controller\ControllerBase;
 
 class SessionController extends ControllerBase {
 
+
+    protected ApiController $api_controller;
+    protected DrupalGPTPrompt $drupal_gpt_prompt;
+
+    function __construct($message){
+        $this->api_controller = new ApiController();
+    }
+
     public function cleanSession($request){
 
     }
@@ -17,7 +25,7 @@ class SessionController extends ControllerBase {
      * @return JsonResponse - returns session id
      * 
      */
-    public function getSession($session_id){
+    private function getSession($session_id){
         // Check if session exists inside 
         $query = \Drupal::entityQuery('node')
             ->condition('type', 'drupal_gpt_session')
@@ -39,16 +47,28 @@ class SessionController extends ControllerBase {
               ]);
               $node->save();
         }
-        return $node;
+        return new DrupalGPTSession($session_id, $node);
     }
 
     /**
      * 
-     * Handle the message and return it to the user
-     * 
+     * Handle a user message and generate an API response
      * 
      */
-    public function testMessage($response){
+    public function processUserMessage($session_id, $message){
+        $session = $this->getSession($session_id);
+        $session->chat_session_timestamp = time();
+        $session->addMessage($message, "", true, false);
 
-    }
+        $ai_message_context = $this->api_controller->getContextFromMessage($message);
+        $ai_message_text = $this->api_controller->returnMessageChainText($session->generateMessageArray());
+        $message_object = $session->addMessage($ai_message_text, $ai_message_context);
+        return new JsonResponse([
+                "message" => 
+                    [ 
+                        "accuracy" => $message_object->getAccuracy(),
+                        "message" => $message_object->getMessage()
+                    ],
+            ]);
+        }
 }

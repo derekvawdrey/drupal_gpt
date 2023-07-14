@@ -6,43 +6,52 @@ use Drupal\drupal_gpt\Controller\ApiController;
 
 class DrupalGPTMessage {
     protected ApiController $api_controller;
-    protected string $message;
-    protected string $gpt_modified_message;
 
-    function __construct($message){
+    // The message and context of the string
+    protected string $message;
+    protected string $context;
+
+    // Determines if the message is a previous message or not
+    protected boolean $already_processed;
+    
+    // Determines if the previous message was accuracy
+    protected float $accuracy;
+
+    function __construct($message, $context = "", $already_processed = false, $ai_response = true){
         $this->api_controller = new ApiController();
         $this->message = $message;
-        $this->gpt_modified_message = $this->promptifyMessage($this->message);
+        $this->context = $context;
+        $this->already_processed = $already_processed;
+        if(!$already_processed && $ai_response){
+            $this->accuracy = $this->verifyAccuracy($this->message, $this->context);
+        }else{
+            $this->accuracy = 0;
+        }
     }
 
-    private function promptifyMessage(string $message){
-        
-        $prompt = [
-            ["role" => "system",
-            "content"=>"
-            Optimize the text to be more specific and explain exactly what the user wants in relation to Brigham Young University (BYU) and the McKay School of Education.
-            The optimized text should be specific to Brigham Young University and the McKay School of Education.
-            Examples are incased in '###'
-            ###
-            Text: how many education majors are there?
-            Response: Could you please provide me with a comprehensive list of education majors offered for enrollment specifically at the McKay School of Education, located at Brigham Young University (BYU)? I'm interested in knowing the various education majors that students can pursue within the McKay School of Education at BYU.
-            ###
-            Text: what is eled?
-            Response: What does the program, major, or department ElEd stand for? What do they do, and what do they offer?
-            ###"
-            ],
-            [
-                "role" => "system",
-                "content" => "Text: ".$message."
-                                Response:"
-            ]
-        ];
+    /**
+     * 
+     * Be able to implement something that will verify if the response is accuracy or not based on the information pulled in from
+     * the vector database
+     * 
+     */
 
+     private function verifyAccuracy(){
+        return $this->api_controller->getMessageAccurate($this->message, $this->context);
+     }
 
-        return $this->api_controller->returnMessageChainText($prompt);
-    }
+     public function isAccurate(){
+        if($this->accuracy > 0.6) return true;
+        return false;
+     }
 
+     public function getAccuracy(){
+        return $this->accuracy;
+     }
 
+     public function getMessage(){
+        return $this->message;
+     }
 
 
 

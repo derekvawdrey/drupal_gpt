@@ -2,21 +2,43 @@
 
 namespace Drupal\drupal_gpt\Model;
 
-use Drupal\Core\Database\Connection;
-use Drupal\Core\Session\SessionManagerInterface;
+use Drupal\node\Entity\Node;
 use Drupal\drupal_gpt\Controller\ApiController;
 
 class DrupalGPTSession {
 
-    // TODO: Change to \Drupal::config('drupal_gpt.settings')
-    private static int $MAX_REQUESTS_PER_SESSION = 10;
-    private static int $MAX_REQUESTS_PER_MINUTE = 10;
-    private static int $CLEANUP_AFTER_MINUTES = 3;
+    // Array of DrupalGPTMessages
+    protected array $message_chain;
+    protected string $session_id;
 
-    protected $timestamp;
-    protected string $sessionId;
-    protected bool $isActive;
-    protected ApiController $apiController;
+
+    // Should be of type drupal_gpt_session that is defined in the config/install
+    protected Node $session_node;
+
+    function __contruct($session_id, $session_node){
+        $this->session_id = $session_id;
+        $this->session_node = $session_node;
+
+    }
+    
+    public function addMessage($message, $context = "", $already_processed = false, $ai_response = true){
+        $drupal_gpt_message = new DrupalGPTMessage($message, $context, $already_processed, $ai_response);
+        $message_chain[] = $drupal_gpt_message;
+        $this->saveToNode();
+        return $drupal_gpt_message;
+    }
+
+    public function generateMessageArray(){
+        $this->session_node;
+    }
+
+    private function loadMessagesFromNode(){
+        
+    }
+
+    private function saveToNode(){
+
+    }
 
     
 
