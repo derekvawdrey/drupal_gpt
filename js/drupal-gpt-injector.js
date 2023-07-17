@@ -74,7 +74,7 @@
         function appendChatbotMessage(message, accuracy){
             $(".chatbot__window--messages").append(chatbotMessage.replace("{MESSAGE}",message));
 
-            if(accuracy < 0.7){
+            if(accuracy <= 0.5){
                 // If the accuracy is less than 0.5
                 $(".chatbot__window--messages").append(chatbotCaution);
             }
