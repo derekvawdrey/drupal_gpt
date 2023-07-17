@@ -1,0 +1,6 @@
+drupal-gpt-hook:
+  js: 
+    js/drupal-gpt-injector.js: {}
+  css:
+    component:
+      css/chatbot.css: {}

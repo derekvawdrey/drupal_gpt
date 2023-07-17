@@ -1,0 +1,133 @@
+:root{
+    --chatbot-right: 32px;
+    --chatbot-bottom: 32px;
+    --primary: #79C7C5;
+    --secondary: #A1E2D9;
+    --tertiary: #F9FBFF;
+    --white: #F9FBFF;
+    --dark: #777777;
+}
+
+#gotoTop{
+    display:none !important;
+}
+
+.chatbot__window{
+    width:300px;
+    height:0px;
+    flex-direction: column;
+    transition:0.5s;
+    opacity:0;
+    display:flex;
+    position: fixed;
+    overflow: hidden;
+    bottom: calc( var(--chatbot-bottom) * 3 );
+    right: var(--chatbot-right);
+    border-radius:12px;
+    box-shadow: 5px 5px 15px rgba(119, 119, 119, 0.5);
+}
+
+.chatbot__window--header{
+    height:48px;
+    min-height: 48px;
+    background-color:var(--white);
+}
+
+.chatbot__window--messages{
+    flex: 1 1 auto;
+    background-color:var(--tertiary);
+    overflow:auto;
+    padding:1em;
+}
+
+.chatbot__window--footer{
+    height:48px;
+    min-height: 48px;
+    background-color:var(--white);
+}
+
+.chatbot__toggle{
+    width:48px;
+    height:48px;
+    font-size:32px;
+    position: fixed;
+    z-index:5;
+    bottom:var(--chatbot-bottom);
+    right:var(--chatbot-right);
+    background-color:var(--primary);
+    color:var(--white);
+    border-radius: 100px;
+    display:flex;
+    justify-content: center;
+    box-shadow: 5px 5px 15px rgba(119, 119, 119, 0.5);
+    align-items: center;
+}
+
+
+
+.bubble {
+    position: relative;
+    display: inline-block;
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+    margin-bottom: 5px;
+    color: #F9FBFF;
+    font-size: 0.7em;
+    padding: 10px 10px 10px 12px;
+    border-radius: 20px;
+}
+.typing .bubble {
+    background: #eaeaea;
+    padding: 8px 13px 9px 13px;
+}
+  
+.ellipsis {
+    width: 5px;
+    height: 5px;
+    display: inline-block;
+    background: #b7b7b7;
+    border-radius: 50%;
+    animation: bounce 1.3s linear infinite;
+}
+
+.one {
+    animation-delay: 0.6s;
+}
+
+.two {
+    animation-delay: 0.5s;
+}
+
+.three {
+    animation-delay: 0.8s;
+}
+
+.outgoing, .incoming{
+    flex:1 1 auto;
+}
+
+.outgoing .bubble {
+    background: var(--primary);
+    float: right;
+}
+
+.incoming .bubble {
+    background: var(--dark);
+    float: left;
+}
+
+
+@keyframes bounce {
+    30% {
+      transform: translateY(-2px);
+    }
+    60% {
+      transform: translateY(0px);
+    }
+    80% {
+      transform: translateY(2px);
+    }
+    100% {
+      transform: translateY(0px);
+      opacity: 0.5;
+    }
+  }

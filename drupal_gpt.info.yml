@@ -4,3 +4,5 @@ description: A openAI API chatbot that answers questions about your website
 package: Custom
 core_version_requirement: ^9 || ^10
 configure: drupal_gpt.settings_form
+libraries: 
+  - drupal_gpt/drupal-gpt-hook
