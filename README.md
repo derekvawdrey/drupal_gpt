@@ -11,11 +11,14 @@ DrupalGPT is the ultimate solution for making your website more engaging, conver
 
 ### How do you setup?
 
-- Get access to the openAI API
-- Create a free pinecone database
-- Upload information to the pinecone database through OpenAI Embeddings
-- Insert configuration variables into the "Extend" portion of the admin panel
-- Specify where you want DrupalGPT to appear.
+1. Get access to the openAI API
+2. Create a free pinecone database
+3. Upload information to the pinecone database through OpenAI Embeddings
+4. Create a folder called "drupal_gpt" and put the files in this repo there
+5. Enable the Module
+6. Insert configuration variables into the "Extend" portion of the admin panel
+7. Specify where you want DrupalGPT to appear.
+8. Chat with DrupalGPT
 
 
 ### Future todo 
