@@ -27,18 +27,73 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
       '#attached' => ['library' => ['system/drupal.vertical-tabs']],
     ];
 
-
-
     // Tab 4: 
     // This will load all the chatbot contexts for each department
-    $form['openai_settings'] = [
+    $form['display_settings'] = [
       '#type' => 'details',
-      '#title' => $this->t('Chatbox department information'),
+      '#title' => $this->t('Chatbot Display Settings'),
       '#group' => 'vertical_tabs',
+      '#attributes' => [
+        'id' => 'edit-urls',
+      ],
     ];
 
 
 
+    // URL field
+    $urls = $config->get('urls') ?? [];
+    $form['display_settings']['urls'] = [
+      '#type' => 'fieldset',
+      '#title' => $this->t('URLs'),
+      '#prefix' => '<div id="urls-wrapper">',
+      '#suffix' => '</div>',
+      '#tree' => TRUE,
+    ];
+
+    $numUrls = $form_state->get('num_urls') ?? count($urls);
+
+    $form_state->set('num_urls', $numUrls);
+
+    $form['display_settings']['urls']['actions']['add_url'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Add URL'),
+      '#submit' => ['::addUrl'],
+      '#ajax' => [
+        'callback' => '::addUrlAjaxCallback',
+        'wrapper' => 'urls-wrapper',
+      ],
+    ];
+
+    if (!empty($urls)) {
+      $form['display_settings']['urls']['actions']['remove_url'] = [
+        '#type' => 'submit',
+        '#value' => $this->t('Remove URL'),
+        '#submit' => ['::removeUrl'],
+        '#ajax' => [
+          'callback' => '::removeUrlAjaxCallback',
+          'wrapper' => 'urls-wrapper',
+        ],
+      ];
+    }
+
+    for ($i = 0; $i < $numUrls; $i++) {
+      $url = $urls[$i] ?? ['url' => '', 'category' => 'category1'];
+      $form['display_settings']['urls'][$i]['url'] = [
+        '#type' => 'textfield',
+        '#title' => $this->t('URL'),
+        '#default_value' => $url['url'],
+      ];
+      $form['display_settings']['urls'][$i]['category'] = [
+        '#type' => 'select',
+        '#title' => $this->t('Category'),
+        '#options' => [
+          'category1' => $this->t('Category 1'),
+          'category2' => $this->t('Category 2'),
+          'category3' => $this->t('Category 3'),
+        ],
+        '#default_value' => $url['category'],
+      ];
+    }
 
 
 
@@ -48,7 +103,7 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
 
 
 
-
+    
     // Tab 1: OpenAI Settings.
     $form['openai_settings'] = [
       '#type' => 'details',
@@ -131,6 +186,43 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
     return parent::buildForm($form, $form_state);
   }
 
+
+
+
+
+
+
+    // Add URL form submission handler
+    public function addUrl(array &$form, FormStateInterface $form_state) {
+      $form_state->set('num_urls', $form_state->get('num_urls') + 1);
+      $form_state->setRebuild();
+    }
+
+    // Add URL form AJAX callback
+    public function addUrlAjaxCallback(array &$form, FormStateInterface $form_state) {
+      return $form['display_settings']['urls'];
+    }
+
+    // Remove URL form submission handler
+    public function removeUrl(array &$form, FormStateInterface $form_state) {
+      if( $form_state->get('num_urls') - 1 >= 0){
+        $form_state->set('num_urls', $form_state->get('num_urls') - 1);
+      }
+      $form_state->setRebuild();
+    }
+
+    // Remove URL form AJAX callback
+    public function removeUrlAjaxCallback(array &$form, FormStateInterface $form_state) {
+      return $form['display_settings']['urls'];
+    }
+
+
+
+
+
+
+
+
   // Implement submitForm() to save the submitted values.
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $config = $this->config('drupal_gpt.settings');
@@ -142,7 +234,20 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
     $config->set('max_requests_per_session', $form_state->getValue('max_requests_per_session'));
     $config->set('max_requests_per_minute', $form_state->getValue('max_requests_per_minute'));
     $config->set('cleanup_after_minutes', $form_state->getValue('cleanup_after_minutes'));
+
+    $urls = [];
+    $numUrls = $form_state->get('num_urls');
+    for ($i = 0; $i < $numUrls; $i++) {
+      $url = $form_state->getValue('urls')[$i]["url"];
+      $category = $form_state->getValue('urls')[$i]["category"];
+      $urls[$i] = ['url' => $url, 'category' => $category];
+    }
+
+    $config->set('urls', $urls);
+    $config->set('num_urls', $numUrls);
+
     $config->save();
+
 
     parent::submitForm($form, $form_state);
   }

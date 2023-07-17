@@ -6,3 +6,5 @@ pinecone_index_url: ""
 max_requests_per_session: 10
 max_requests_per_minute: 10
 cleanup_after_minutes: 3
+urls: []
+num_urls: 1

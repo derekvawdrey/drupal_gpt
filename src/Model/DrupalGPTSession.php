@@ -44,7 +44,7 @@ class DrupalGPTSession {
             $content = $message["content"];
             $role = $message["role"];
             $ai_response = false;
-            if($ole == "assistant") $ai_response = true;
+            if($role == "assistant") $ai_response = true;
             $drupal_gpt_message = new DrupalGPTMessage($content, "", true, true, $accuracy);
             $drupal_gpt_message->setAccuracy($accuracy);
             $drupal_gpt_message->setContext($context);

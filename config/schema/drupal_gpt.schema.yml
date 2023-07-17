@@ -2,6 +2,22 @@ drupal_gpt.settings:
   type: config_object
   label: 'DrupalGPT configuration settings'
   mapping:
+    urls:
+      type: sequence
+      label: 'URLs'
+      sequence:
+          type: mapping
+          label: 'URL entry'
+          mapping:
+            url:
+              type: string
+              label: 'URL'
+            category:
+              type: string
+              label: 'Category'
+    num_urls:
+      type: integer
+      label: 'Number of URLs'
     openai_key:
       type: text
       label: 'Your OpenAI key'
