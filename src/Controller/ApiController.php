@@ -17,6 +17,21 @@ class ApiController extends ControllerBase {
         return $config->get('openai_model');
     }
     
+    private function getPineconeEnvironment(){
+        $config = \Drupal::config('drupal_gpt.settings');
+        return $config->get('pinecone_environment');
+    }
+
+    private function getPineconeKey(){
+        $config = \Drupal::config('drupal_gpt.settings');
+        return $config->get('pinecone_key');
+    }
+
+    private function getPineconeIndex(){
+        $config = \Drupal::config('drupal_gpt.settings');
+        return $config->get('pinecone_index_url');
+    }
+    
     /**
      * 
      * This is for a message chain, not a single prompt
@@ -95,16 +110,55 @@ class ApiController extends ControllerBase {
         return json_decode($result,true);
     }
 
+    public function getEmbeddingFromMessage($message){
+        $ch = curl_init();
+        $url = 'https://api.openai.com/v1/embeddings';
+        $api_key = $this->getApiKey();
+        $post_fields = array(
+            "model" => "text-embedding-ada-002",
+            "input" => $message,
+        );
+        $header = [
+            'Content-Type: application/json',
+            'Authorization: Bearer '. $api_key
+        ];
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post_fields));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+        $result = curl_exec($ch);
+        curl_close($ch);
+        return json_decode($result,true)["data"][0]["embedding"];
+    }
+
 
     public function getContextFromMessage($message){
-        return "
-        Graduation requirements
-        Complete 68-69 credits of coursework
-        No grade lower than a C in any program course
-        14-week student teaching OR full year paid internship
-        Pass the Praxis II exam
-        Application for licensure with the Utah State Board of Education
-        ";
+
+        $embedding = $this->getEmbeddingFromMessage($message);
+        \Drupal::logger("embedding")->info(json_encode($embedding));
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $this->getPineconeIndex() . '/query');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Api-Key: ' . $this->getPineconeKey(),
+            'Content-Type: application/json',
+        ]);
+
+        $post_fields = array(
+            "vector" => $embedding,
+            "topK" => 3,
+            "includeValues" => false,
+            "includeMetadata" => true
+        );
+
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post_fields));
+
+        $response = json_decode(curl_exec($ch),true);
+
+        curl_close($ch);
+        return $response["matches"][0]["metadata"]["text"];
     }
 
     /**

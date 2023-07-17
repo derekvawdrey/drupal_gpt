@@ -68,6 +68,21 @@ class DrupalGPTMessage {
         return $this->context;
      }
 
+      public function setAccuracy($accuarcy){
+         $this->$accuarcy = (float)$accuarcy;
+      }
+
+      public function setMessage($message){
+         $this->message = $message;
+      }
+      
+      public function setMessageAuthor($role){
+         $this->message_author = $role;
+      }
+
+      public function setContext($context){
+         $this->context = $context;
+      }
 
 
 }

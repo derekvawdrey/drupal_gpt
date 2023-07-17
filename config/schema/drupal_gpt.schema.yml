@@ -8,6 +8,15 @@ drupal_gpt.settings:
     openai_model:
       type: text
       label: 'What model do you want the chatbot to use?'
+    pinecone_environment:
+      type: text
+      label: 'What is the environment for your index?'
+    pinecone_key:
+      type: text
+      label: 'Your pinecone key.'
+    pinecone_index_url:
+      type: text
+      label: 'The url for the index of your pinecone database you wish to search.'
     max_requests_per_session:
       type: integer
       label: 'How many messages can the user send before killing the session?'

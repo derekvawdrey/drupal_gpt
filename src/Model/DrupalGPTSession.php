@@ -38,13 +38,19 @@ class DrupalGPTSession {
     private function loadMessagesFromNode(){
         $this->message_chain = [];
         $json = json_decode($this->session_node->get("body")->value, true);
-        \Drupal::logger("DrupalGPT")->info(json_encode($json,true));
         foreach($json["messages"] as $message){
             $accuracy = $message["accuracy"];
             $context = $message["context"];
+            $content = $message["content"];
+            $role = $message["role"];
             $ai_response = false;
-            if($json["role"] == "assistant") $ai_response = true;
-            $this->message_chain[] = new DrupalGPTMessage($message["content"], "", true, true, $accuracy);
+            if($ole == "assistant") $ai_response = true;
+            $drupal_gpt_message = new DrupalGPTMessage($content, "", true, true, $accuracy);
+            $drupal_gpt_message->setAccuracy($accuracy);
+            $drupal_gpt_message->setContext($context);
+            $drupal_gpt_message->setMessageAuthor($role);
+            $drupal_gpt_message->setMessage($content);
+            $this->message_chain[] = $drupal_gpt_message;
         }
     }
 
@@ -64,23 +70,45 @@ class DrupalGPTSession {
             $json["messages"][] = $message_json;
         }
         $this->session_node->set("chat_session_timestamp",time());
-        $this->session_node->set("body",json_encode($json,true));
+        $this->session_node->set("body",json_encode($json));
         $this->session_node->save();
     }
 
     public function generateMessageArray(){
         // Do this
         $messages = [];
+        $increment = 0;
         foreach($this->message_chain as $message){
+
+            // Append Context for message and also how the AI should act
+            if($increment > count($this->message_chain)-2){
+                if($message->getContext() != null){
+                    $message_json = [
+                        "content" => "Context surrounded in ###" . 
+                        "###" . $message->getContext() . "###",
+                        "role"=> "user"
+                    ];
+                    $messages[] = $message_json;
+                }
+                $message_json = [
+                    "content" => "Keep responses less than 80 words, and have an energetic writing style, and funny. 
+                    Don't send back the name of the program and avoid replying with inaccurate information. 
+                    Don't give me any non-factual information that wasn't provided in the context above.",
+                    "role"=> "user"
+                ];
+                $messages[] = $message_json;
+            }
+            
+            //Append the users response to the thread
             $message_json = [
                 "content"=>$message->getMessage(),
                 "role"=>$message->getMessageAuthor(),
             ];
 
+            $increment++;
 
             $messages[] = $message_json;
         }
-        \Drupal::logger("DrupalGPT")->info(json_encode($messages, true));
         return $messages;
     }
 

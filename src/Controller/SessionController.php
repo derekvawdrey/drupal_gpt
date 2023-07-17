@@ -60,17 +60,17 @@ class SessionController extends ControllerBase {
      */
     private function processUserMessage($session_id, $message){
         $session = $this->getSession($session_id);
-        $session->addMessage($message, "", true, false);
-
-        $ai_message_context = $this->api_controller->getContextFromMessage($message);
+        $message_context = $this->api_controller->getContextFromMessage($message);
+        $session->addMessage($message, $message_context, true, false);
         $ai_message_text = $this->api_controller->returnMessageChainText($session->generateMessageArray());
-        $message_object = $session->addMessage($ai_message_text, $ai_message_context);
+        $message_object = $session->addMessage($ai_message_text, $message_context);
         return new JsonResponse(
             [
                 "message" => 
                     [ 
                         "accuracy" => $message_object->getAccuracy(),
-                        "message" => $message_object->getMessage()
+                        "message" => $message_object->getMessage(),
+                        "context_provided" => $message_object->getContext(),
                     ],
             ]
         );
