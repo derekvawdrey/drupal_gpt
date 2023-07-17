@@ -6,6 +6,7 @@
     --tertiary: #F9FBFF;
     --white: #F9FBFF;
     --dark: #777777;
+    --caution:#c2423d;
 }
 
 #gotoTop{
@@ -42,8 +43,8 @@
 }
 
 .chatbot__window--footer{
-    height:48px;
-    min-height: 48px;
+    height:80px;
+    min-height: 80px;
     background-color:var(--white);
     padding:1em;
     display: flex;
@@ -72,11 +73,26 @@
     flex:1 1 auto;
     height:100%;
     border-radius:16px;
-    background-color:;
+    border:0px;
+    font-size: 0.85em !important;
     background: #eaeaea;
     padding: 0.25em;
-    font-size: 15px;
     text-indent: 1em;
+    margin-right: 1em;
+    max-height:40px;
+}
+
+.chatbot__window--footer button{
+    flex: 1 1 auto;
+    max-width:96px;
+    font-size: 0.85em !important;
+    max-height:32px;
+    min-height:32px;
+    background: #eaeaea;
+    border:0px;
+    border-radius:16px;
+    appearance: none;
+    -webkit-appearance: none;
 }
 
 
@@ -86,13 +102,17 @@
     box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
     margin-bottom: 5px;
     color: #F9FBFF;
-    font-size: 0.7em;
+    font-size: 0.85em;
     padding: 10px 10px 10px 12px;
     border-radius: 20px;
 }
 .typing .bubble {
     background: #eaeaea;
     padding: 8px 13px 9px 13px;
+}
+
+.typing .bubble.caution{
+    background-color:var(--caution);
 }
   
 .ellipsis {

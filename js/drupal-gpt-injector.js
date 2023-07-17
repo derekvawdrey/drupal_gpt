@@ -5,7 +5,7 @@
         var chatbotCategoy = settings.drupal_gpt.category;
         var toggled = false;
         var chatbotTypingElement = `
-        <div class="typing">
+        <div class="chatbot--writing typing">
             <div class="bubble">
                 <div class="ellipsis one"></div>
                 <div class="ellipsis two"></div>
@@ -19,6 +19,10 @@
             <div class="bubble">{MESSAGE}</div>
         </div>
         `
+        var chatbotCaution = `
+        <div class='typing incoming caution'>
+            <div class="bubble">⚠️The above message is more likely to contain incorrect information...⚠️</div>
+        </div>`
 
         var userMessage = `
         <div class='outgoing'>
@@ -53,33 +57,62 @@
         });
 
         function initChatbot(){
-            appendChatbot();
-            initListeners();
+            if($(".chatbot__window").length < 1){
+                appendChatbot();
+                initListeners();
+            }
         }
 
         function appendChatbot(){
             $("body").append(chatbotWindow);
             $("body").append(chatbotButton);
-            appendMessage();
+            appendChatbotMessage("Hey, how can I help you? 👋😊");
         }
 
-        function appendMessage(){
-            $(".chatbot__window--messages").append(chatbotMessage.replace("{MESSAGE}","Hey, how can I help you? 👋😊"));
-            $(".chatbot__window--messages").append(userMessage.replace("{MESSAGE}","i want donuts"));
+        function appendChatbotMessage(message){
+            $(".chatbot__window--messages").append(chatbotMessage.replace("{MESSAGE}",message));
+            $(".chatbot__window--messages").append(chatbotCaution);
+            $(".chatbot__window--messages").animate({ scrollTop: $('.chatbot__window--messages').prop("scrollHeight")}, 400);
+        }
+        function appendUserMessage(message){
+            $(".chatbot__window--messages").append(userMessage.replace("{MESSAGE}",message));
+            $(".chatbot__window--messages").animate({ scrollTop: $('.chatbot__window--messages').prop("scrollHeight")}, 400);
+        }
+
+        function appendChatbotIsWriting(){
+            $(".chatbot--writing").remove();
             $(".chatbot__window--messages").append(chatbotTypingElement);
         }
         
         function initListeners(){
 
             $(".chatbot__toggle").on('click', function(){
-                $toggle_value = toggled ? "450px" : "0px";
-                $opacity_value = toggled ? "1" : "0";
-                $button_value = toggled ? "rotate(45deg)" : "";
+                $toggle_value = !toggled ? "450px" : "0px";
+                $opacity_value = !toggled ? "1" : "0";
+                $button_value = !toggled ? "rotate(45deg)" : "";
                 toggled = !toggled;
                 $(".chatbot__window").css("height", $toggle_value);
                 $(".chatbot__window").css("opacity", $opacity_value);
                 $(this).css("transform", $button_value)
             });
+
+            // Check when enter is pressed to send
+
+            $(".chatbot__window--message").on('keyup', function(e) {
+                if (e.keyCode == 13) {
+                  processMessage();
+                }
+              });
+              $(".chatbot__window--sendmessage").on('click', function(e) {
+                  processMessage();
+              });
+            
+        }
+
+        function processMessage(){
+            appendUserMessage($(".chatbot__window--message").val());
+            $(".chatbot__window--message").val("");
+            appendChatbotIsWriting();
             
         }
 
