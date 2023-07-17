@@ -4,6 +4,8 @@
         // Access the customVariable passed from PHP.
         var chatbotCategoy = settings.drupal_gpt.category;
         var toggled = false;
+        const uuid = crypto.randomUUID();
+        var processingMessage = false;
         var chatbotTypingElement = `
         <div class="chatbot--writing typing">
             <div class="bubble">
@@ -32,7 +34,7 @@
         var chatbotWindow = `
         <div class='chatbot__window'>
             <div class='chatbot__window--header'>
-                <h3>Jimmy</h3>
+                <h4>Colby 🔥</h4>
             </div>
             <div class='chatbot__window--messages'>
                 
@@ -66,12 +68,20 @@
         function appendChatbot(){
             $("body").append(chatbotWindow);
             $("body").append(chatbotButton);
-            appendChatbotMessage("Hey, how can I help you? 👋😊");
+            appendChatbotMessage("Hey, how can I help you? 👋😊", 1);
         }
 
-        function appendChatbotMessage(message){
+        function appendChatbotMessage(message, accuracy){
             $(".chatbot__window--messages").append(chatbotMessage.replace("{MESSAGE}",message));
-            $(".chatbot__window--messages").append(chatbotCaution);
+
+            if(accuracy < 0.7){
+                // If the accuracy is less than 0.5
+                $(".chatbot__window--messages").append(chatbotCaution);
+            }
+
+            $(".chatbot--writing").remove();
+            processingMessage = false;
+
             $(".chatbot__window--messages").animate({ scrollTop: $('.chatbot__window--messages').prop("scrollHeight")}, 400);
         }
         function appendUserMessage(message){
@@ -110,10 +120,30 @@
         }
 
         function processMessage(){
-            if($(".chatbot__window--message").val().length > 0){
-                appendUserMessage($(".chatbot__window--message").val());
+            if($(".chatbot__window--message").val().length > 0 && !processingMessage){
+                processingMessage = true;
+                let message = $(".chatbot__window--message").val();
+                appendUserMessage(message);
                 $(".chatbot__window--message").val("");
                 appendChatbotIsWriting();
+
+
+
+
+                $.ajax({
+                    url: "/api/open_ai/converse",
+                    type: "GET",
+                    data: {
+                      session_id: uuid,
+                      message: message,
+                    },
+                    success: function(response) {
+                      appendChatbotMessage(response.message.message, response.message.accuracy);
+                    },
+                    error: function(xhr) {
+                      appendChatbotMessage("There was an error sending your message :(");
+                    }
+                  });                  
             }
         }
 
