@@ -20,8 +20,8 @@
         </div>
         `
         var chatbotCaution = `
-        <div class='typing incoming caution'>
-            <div class="bubble">⚠️The above message is more likely to contain incorrect information...⚠️</div>
+        <div class='typing incoming'>
+            <div class="bubble caution">⚠️ The above message is more likely to contain incorrect information...</div>
         </div>`
 
         var userMessage = `
@@ -39,7 +39,7 @@
             </div>
             <div class='chatbot__window--footer'>
                 <input class='chatbot__window--message'></input>
-                <button class='chatbot__window--sendmessage'>-></button>
+                <button class='chatbot__window--sendmessage'>Send</button>
             </div>
         </div>
         `
@@ -110,10 +110,11 @@
         }
 
         function processMessage(){
-            appendUserMessage($(".chatbot__window--message").val());
-            $(".chatbot__window--message").val("");
-            appendChatbotIsWriting();
-            
+            if($(".chatbot__window--message").val().length > 0){
+                appendUserMessage($(".chatbot__window--message").val());
+                $(".chatbot__window--message").val("");
+                appendChatbotIsWriting();
+            }
         }
 
 

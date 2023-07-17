@@ -91,6 +91,7 @@
     background: #eaeaea;
     border:0px;
     border-radius:16px;
+    font-weight:bold;
     appearance: none;
     -webkit-appearance: none;
 }
@@ -111,8 +112,8 @@
     padding: 8px 13px 9px 13px;
 }
 
-.typing .bubble.caution{
-    background-color:var(--caution);
+.bubble.caution{
+    background-color:var(--caution) !important;
 }
   
 .ellipsis {
