@@ -28,13 +28,14 @@
         var chatbotWindow = `
         <div class='chatbot__window'>
             <div class='chatbot__window--header'>
-                <h1>Jimmy</h1>
+                <h3>Jimmy</h3>
             </div>
             <div class='chatbot__window--messages'>
                 
             </div>
             <div class='chatbot__window--footer'>
                 <input class='chatbot__window--message'></input>
+                <button class='chatbot__window--sendmessage'>-></button>
             </div>
         </div>
         `

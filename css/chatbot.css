@@ -31,6 +31,7 @@
     height:48px;
     min-height: 48px;
     background-color:var(--white);
+    padding:1em;
 }
 
 .chatbot__window--messages{
@@ -44,6 +45,9 @@
     height:48px;
     min-height: 48px;
     background-color:var(--white);
+    padding:1em;
+    display: flex;
+    align-items: center;
 }
 
 .chatbot__toggle{
@@ -64,6 +68,17 @@
     align-items: center;
 }
 
+.chatbot__window--footer input{
+    flex:1 1 auto;
+    height:100%;
+    border-radius:16px;
+    background-color:;
+    background: #eaeaea;
+    padding: 0.25em;
+    font-size: 15px;
+    text-indent: 1em;
+}
+
 
 .bubble {
     position: relative;
@@ -74,7 +89,6 @@
     font-size: 0.7em;
     padding: 10px 10px 10px 12px;
     border-radius: 20px;
-    max-width: 80px;
 }
 .typing .bubble {
     background: #eaeaea;
