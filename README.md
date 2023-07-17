@@ -24,3 +24,4 @@ DrupalGPT is the ultimate solution for making your website more engaging, conver
 - [ ] Allow users to upload information per category
 - [ ] Allow the changing of the chatbot name
 - [ ] Allow theme customization for the chatbot
+- [ ] Optimze the user input so that more accurate information can be pulled based on what the user is talking about. This will pull previous context from the previous questions into the users query.
