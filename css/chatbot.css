@@ -56,13 +56,13 @@
     right:var(--chatbot-right);
     background-color:var(--primary);
     color:var(--white);
+    transition:0.5s;
     border-radius: 100px;
     display:flex;
     justify-content: center;
     box-shadow: 5px 5px 15px rgba(119, 119, 119, 0.5);
     align-items: center;
 }
-
 
 
 .bubble {
@@ -74,6 +74,7 @@
     font-size: 0.7em;
     padding: 10px 10px 10px 12px;
     border-radius: 20px;
+    max-width: 80px;
 }
 .typing .bubble {
     background: #eaeaea;
@@ -102,7 +103,17 @@
 }
 
 .outgoing, .incoming{
-    flex:1 1 auto;
+    width:100%; 
+    display: flex;
+    min-height:48px;
+    align-items: center;
+}
+
+.outgoing{
+    justify-content: end;
+}
+.incoming{
+    justify-content: start;
 }
 
 .outgoing .bubble {

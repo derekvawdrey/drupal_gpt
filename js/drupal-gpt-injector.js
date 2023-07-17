@@ -15,7 +15,7 @@
         
 
         var chatbotMessage = `
-        <div class='incoming'>
+        <div class='typing incoming'>
             <div class="bubble">{MESSAGE}</div>
         </div>
         `
@@ -27,12 +27,14 @@
 
         var chatbotWindow = `
         <div class='chatbot__window'>
-            <div class='chatbot__window--header'></div>
+            <div class='chatbot__window--header'>
+                <h1>Jimmy</h1>
+            </div>
             <div class='chatbot__window--messages'>
                 
             </div>
             <div class='chatbot__window--footer'>
-
+                <input class='chatbot__window--message'></input>
             </div>
         </div>
         `
@@ -58,8 +60,6 @@
             $("body").append(chatbotWindow);
             $("body").append(chatbotButton);
             appendMessage();
-            appendMessage();
-            appendMessage();
         }
 
         function appendMessage(){
@@ -73,11 +73,11 @@
             $(".chatbot__toggle").on('click', function(){
                 $toggle_value = toggled ? "450px" : "0px";
                 $opacity_value = toggled ? "1" : "0";
-                $button_value = toggled ? "-" : "+";
+                $button_value = toggled ? "rotate(45deg)" : "";
                 toggled = !toggled;
                 $(".chatbot__window").css("height", $toggle_value);
                 $(".chatbot__window").css("opacity", $opacity_value);
-                $(this).find("span").text($button_value)
+                $(this).css("transform", $button_value)
             });
             
         }
