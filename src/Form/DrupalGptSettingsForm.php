@@ -72,7 +72,14 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
         ],
       ];
     }
-    $categories = $config->get('categories');
+    $categories = $config->get('chatbot_categories');
+    $category_map = [];
+    foreach($categories as $category){
+      $category_map[$category] = $category;
+    }
+
+
+
     for ($i = 0; $i < $numUrls; $i++) {
       $url = $urls[$i] ?? ['url' => '', 'category' => 'category1'];
       $form['display_settings']['urls'][$i]['url'] = [
@@ -83,11 +90,7 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
       $form['display_settings']['urls'][$i]['category'] = [
         '#type' => 'select',
         '#title' => $this->t('Category'),
-        '#options' => [
-          'category1' => $this->t('Category 1'),
-          'category2' => $this->t('Category 2'),
-          'category3' => $this->t('Category 3'),
-        ],
+        '#options' => $category_map,
         '#default_value' => $url['category'],
       ];
     }
@@ -111,7 +114,13 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
 
 
     // Category field
-    $categories = $config->get('categories') ?? [];
+    $categories = $config->get('chatbot_categories') ?? [];
+    $numCategories = $form_state->get('num_categories') ?? count($categories);
+    $skipCategories = $form_state->get('skip_categories') ?? [];
+    if($numCategories == 0) $numCategories = 1;
+    $form_state->set('num_categories', $numCategories);
+    $form_state->set('categories',$categories);
+
     $form['chatbot_categories']['categories'] = [
       '#type' => 'fieldset',
       '#title' => $this->t('Categories'),
@@ -119,10 +128,6 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
       '#suffix' => '</div>',
       '#tree' => TRUE,
     ];
-
-    $numCategories = $form_state->get('num_categories') ?? count($categories);
-    if($numCategories == 0) $numCategories = 1;
-    $form_state->set('num_categories', $numCategories);
 
     $form['chatbot_categories']['categories']['actions']['add_category'] = [
       '#type' => 'submit',
@@ -134,24 +139,36 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
       ],
     ];
 
-    if (!empty($categories)) {
-      $form['chatbot_categories']['categories']['actions']['remove_category'] = [
-        '#type' => 'submit',
-        '#value' => $this->t('Remove Category'),
-        '#submit' => ['::removeCategory'],
-        '#ajax' => [
-          'callback' => '::removeCategoryAjaxCallback',
-          'wrapper' => 'categories-wrapper',
-        ],
-      ];
-    }
-
     for ($i = 0; $i < $numCategories; $i++) {
+      if(in_array($i, $skipCategories)) continue;
       $category = $categories[$i] ?? "Category1";
       $form['chatbot_categories']['categories'][$i] = [
+        '#type' => 'container',
+        '#attributes' => [
+          'class' => ['row'],
+        ],
+      ];
+      $form['chatbot_categories']['categories'][$i]["category"] = [
         '#type' => 'textfield',
         '#title' => $this->t('Category'),
         '#default_value' => $category,
+        '#attributes' => [
+          'class' => ['col-12', 'col-md-9'],
+        ],
+      ];
+      $form['chatbot_categories']['categories'][$i]['actions']['remove'] = [
+        '#type' => 'submit',
+        '#value' => $this->t('Remove'),
+        '#submit' => ['::removeCategoryItem'],
+        '#ajax' => [
+          'callback' => '::removeCategoryItemAjaxCallback',
+          'wrapper' => 'categories-wrapper',
+        ],
+        '#name' => 'remove_category_' . $i,
+        '#attributes' => [
+          'class' => ['remove-category','col-12, col-md-3'],
+          'data-category-index' => $i, // Store the category index as data attribute
+        ],
       ];
     }
   }
@@ -300,17 +317,20 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
     public function addCategoryAjaxCallback(array &$form, FormStateInterface $form_state) {
       return $form['chatbot_categories']['categories'];
     }
-    public function removeCategory(array &$form, FormStateInterface $form_state) {
-      if( $form_state->get('num_categories') - 1 >= 0){
-        $form_state->set('num_categories', $form_state->get('num_categories') - 1);
+    public function removeCategoryItem(array &$form, FormStateInterface $form_state) {
+      if ($form_state->get('num_categories') - 1 >= 0) {
+          $triggering_element = $form_state->getTriggeringElement();
+          $category_index = (int) str_replace('remove_category_', '', $triggering_element['#name']);
+          $categories = $form_state->get('skip_categories') ?? [];
+          $categories[] = $category_index;
+          $form_state->set("skip_categories", $categories);
+          $form_state->setRebuild();
       }
-      $form_state->setRebuild();
-    }
-    public function removeCategoryAjaxCallback(array &$form, FormStateInterface $form_state) {
+  }
+
+    public function removeCategoryItemAjaxCallback(array &$form, FormStateInterface $form_state) {
       return $form['chatbot_categories']['categories'];
     }
-
-
 
 
 
@@ -340,12 +360,16 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
     $config->set('num_urls', $numUrls);
 
     $categories = [];
+    $skipCategories = $form_state->get('skip_categories') ?? [];
     $numCategories = $form_state->get('num_categories');
     for ($i = 0; $i < $numCategories; $i++) {
-      $category = $form_state->getValue('categories')[$i];
-      $categories[$i] = $category;
+      if(isset($skipCategories[$i])) continue;
+      if($form_state->getValue('categories')[$i]["category"] == "") continue;
+      $category = $form_state->getValue('categories')[$i]["category"];
+      $categories[] = $category;
     }
-    $config->set('categories', $categories);
+    
+    $config->set('chatbot_categories', $categories);
 
     $config->save();
 

@@ -14,9 +14,7 @@ function drupal_gpt_page_attachments_alter(array &$attachments) {
     }
 
     $current_path = \Drupal::service('path.current')->getPath();
-    \Drupal::logger("urls")->info($current_path);
     if (in_array($current_path, $allowed_paths)) {
-        \Drupal::logger("test_urls")->info("Success");
         $attachments['#attached']['library'][] = 'drupal_gpt/drupal-gpt-hook';
         $attachments['#attached']['drupalSettings']['drupal_gpt']['category'] = $category;
     }

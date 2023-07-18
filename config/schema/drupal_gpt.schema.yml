@@ -15,7 +15,7 @@ drupal_gpt.settings:
             category:
               type: string
               label: 'Category'
-    categories:
+    chatbot_categories:
       type: sequence
       label: 'Categories'
       sequence:
