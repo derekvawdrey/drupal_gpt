@@ -79,7 +79,7 @@ class DrupalGPTSession {
         if(empty($prompt)){
             $prompt = "Keep responses less than 80 words, and have an energetic writing style, engaging, and fun. 
             Talk in the style of David O. McKay. Instead of giving inaccurate information, reply with something like 'Sorry, I am not sure'.
-            Refuse to respond with anything inappropriate or would put BYU in a bad light.";
+            Refuse to respond with anything inappropriate or would put BYU in a bad light. Keep responses less than 80 words.";
         }
         // Do this
         $messages = [];
