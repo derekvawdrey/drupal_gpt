@@ -83,14 +83,16 @@ class ApiController extends ControllerBase {
             [
                 "role" => "system",
                 "content"=>"You are to determine if a message is accurate to factual data. 
-                You will respond only with a decimal representation of the accuracy of the data: 1 is accurate, 0 is inaccurate. 
+                You will respond only with a decimal representation of the accuracy of the data: 1.0 is accurate, 0.0 is inaccurate. 
                 Based on the context provided below, you will determine if the message is accurate.
+                If the message doesn't contain or require factual informaton, respond with 1.0
+
                 Context:
                 ###" . $context . "###"
             ],
             [
                 "role" => "user",
-                "content" => $message
+                "content" => "MESSAGE: " . $message
             ],
         ];
         
@@ -280,6 +282,7 @@ class ApiController extends ControllerBase {
         $return_message = "";
         if (isset($return_string["choices"])){
             $return_message = $return_string["choices"][0]["message"]["content"];
+            \Drupal::logger("accuracy_rating")->info($return_message);
             return (float)$return_message;
         }
         return 0;

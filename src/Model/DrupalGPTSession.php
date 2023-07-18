@@ -74,7 +74,12 @@ class DrupalGPTSession {
         $this->session_node->save();
     }
 
-    public function generateMessageArray(){
+    public function generateMessageArray($prompt = ""){
+
+        if(empty($prompt)){
+            $prompt = "Keep responses less than 80 words, and have an energetic writing style, engaging, and fun. 
+            Talk in the style of David O. McKay. Instead of giving inaccurate information, reply with something like 'Sorry, I am not sure'";
+        }
         // Do this
         $messages = [];
         $increment = 0;
@@ -85,15 +90,13 @@ class DrupalGPTSession {
                 if($message->getContext() != null){
                     $message_json = [
                         "content" => "Context surrounded in ###" . 
-                        "###" . $message->getContext() . "###",
-                        "role"=> "user"
+                        "###" . $context . "###",
+                        "role"=> "system"
                     ];
                     $messages[] = $message_json;
                 }
                 $message_json = [
-                    "content" => "Keep responses less than 80 words, and have an energetic writing style, and funny. 
-                    Don't send back the name of the program and avoid replying with inaccurate information. 
-                    Don't give me any non-factual information that wasn't provided in the context above.",
+                    "content" => $prompt,
                     "role"=> "user"
                 ];
                 $messages[] = $message_json;
@@ -109,6 +112,11 @@ class DrupalGPTSession {
 
             $messages[] = $message_json;
         }
+
+        if(empty($messages)){
+
+        }
+
         return $messages;
     }
 

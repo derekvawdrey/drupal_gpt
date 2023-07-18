@@ -55,11 +55,43 @@ class SessionController extends ControllerBase {
 
     /**
      * 
+     * Optimze the user input based on the message chain
+     * 
+     * 
+     */
+
+    private function promptifyMessage(string $message, $session){
+        $prompt = "
+        If needed optimize this message to give the best context possible surrounding the query.
+        If necessary, include program name, peoples names, etc";
+
+        $messages = $session->generateMessageArray($prompt);
+        $messages = [];
+        if(empty($messages)){
+            $messages[] = [
+                "role"=>"system",
+                "context"=>$prompt,
+            ];
+            $messages[] = [
+                "role"=>"user",
+                "context"=>$message,
+            ];
+        }
+        
+
+        $promptifiedMessage = $this->api_controller->returnMessageChainText($messages);
+        \Drupal::logger("promptified message")->info($promptifiedMessage);
+        return $promptifiedMessage;
+    }
+
+    /**
+     * 
      * Handle a user message and generate an API response
      * 
      */
     private function processUserMessage($session_id, $message){
         $session = $this->getSession($session_id);
+        $message = $this->promptifyMessage($message, $session);
         $message_context = $this->api_controller->getContextFromMessage($message);
         $session->addMessage($message, $message_context, true, false);
         $ai_message_text = $this->api_controller->returnMessageChainText($session->generateMessageArray());
