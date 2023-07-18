@@ -15,6 +15,16 @@ drupal_gpt.settings:
             category:
               type: string
               label: 'Category'
+    categories:
+      type: sequence
+      label: 'Categories'
+      sequence:
+        - type: mapping
+          label: 'Category'
+          mapping:
+            name:
+              type: string
+              label: 'Name'
     num_urls:
       type: integer
       label: 'Number of URLs'

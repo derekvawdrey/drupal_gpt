@@ -17,10 +17,7 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
     return ['drupal_gpt.settings'];
   }
 
-  // Implement buildForm() to create the form elements.
-  public function buildForm(array $form, FormStateInterface $form_state) {
-    $config = $this->config('drupal_gpt.settings');
-
+  private function chatBotSettings(array &$form, FormStateInterface &$form_state, $config){
     // Add the vertical tabs element.
     $form['vertical_tabs'] = [
       '#type' => 'vertical_tabs',
@@ -75,7 +72,7 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
         ],
       ];
     }
-
+    $categories = $config->get('categories');
     for ($i = 0; $i < $numUrls; $i++) {
       $url = $urls[$i] ?? ['url' => '', 'category' => 'category1'];
       $form['display_settings']['urls'][$i]['url'] = [
@@ -94,16 +91,71 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
         '#default_value' => $url['category'],
       ];
     }
+  }
+  private function categorySettings(array &$form, FormStateInterface &$form_state, $config){
+    // Add the vertical tabs element.
+    $form['vertical_tabs'] = [
+      '#type' => 'vertical_tabs',
+      '#attached' => ['library' => ['system/drupal.vertical-tabs']],
+    ];
+
+    $form['chatbot_categories'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Chatbot Categories'),
+      '#group' => 'vertical_tabs',
+      '#attributes' => [
+        'id' => 'edit-categories',
+      ],
+    ];
 
 
 
+    // Category field
+    $categories = $config->get('categories') ?? [];
+    $form['chatbot_categories']['categories'] = [
+      '#type' => 'fieldset',
+      '#title' => $this->t('Categories'),
+      '#prefix' => '<div id="categories-wrapper">',
+      '#suffix' => '</div>',
+      '#tree' => TRUE,
+    ];
 
+    $numCategories = $form_state->get('num_categories') ?? count($categories);
+    if($numCategories == 0) $numCategories = 1;
+    $form_state->set('num_categories', $numCategories);
 
+    $form['chatbot_categories']['categories']['actions']['add_category'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Add Category'),
+      '#submit' => ['::addCategory'],
+      '#ajax' => [
+        'callback' => '::addCategoryAjaxCallback',
+        'wrapper' => 'categories-wrapper',
+      ],
+    ];
 
+    if (!empty($categories)) {
+      $form['chatbot_categories']['categories']['actions']['remove_category'] = [
+        '#type' => 'submit',
+        '#value' => $this->t('Remove Category'),
+        '#submit' => ['::removeCategory'],
+        '#ajax' => [
+          'callback' => '::removeCategoryAjaxCallback',
+          'wrapper' => 'categories-wrapper',
+        ],
+      ];
+    }
 
-
-
-    
+    for ($i = 0; $i < $numCategories; $i++) {
+      $category = $categories[$i] ?? "Category1";
+      $form['chatbot_categories']['categories'][$i] = [
+        '#type' => 'textfield',
+        '#title' => $this->t('Category'),
+        '#default_value' => $category,
+      ];
+    }
+  }
+  private function openAISettings(array &$form, FormStateInterface &$form_state, $config){
     // Tab 1: OpenAI Settings.
     $form['openai_settings'] = [
       '#type' => 'details',
@@ -124,7 +176,8 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('openai_model'),
       '#description' => $this->t('Enter the model you want to use.'),
     ];
-
+  }
+  private function pineconeSettings(array &$form, FormStateInterface &$form_state, $config){
     // Tab 2: Pinecone Settings.
     $form['pinecone_settings'] = [
       '#type' => 'details',
@@ -152,7 +205,8 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('pinecone_index_url'),
       '#description' => $this->t('Remove the / at the end, and add https:// at the beginning'),
     ];
-
+  }
+  private function otherSettings(array &$form, FormStateInterface &$form_state, $config){
     // Tab 3: Other Settings.
     $form['other_settings'] = [
       '#type' => 'details',
@@ -180,6 +234,28 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('cleanup_after_minutes'),
       '#description' => $this->t('A session will be declared inactive if a user hasn\'t sent a message in this many minutes.'),
     ];
+  }
+
+
+  // Implement buildForm() to create the form elements.
+  public function buildForm(array $form, FormStateInterface $form_state) {
+    $config = $this->config('drupal_gpt.settings');
+
+    $this->chatBotSettings($form, $form_state, $config);
+    $this->categorySettings($form, $form_state, $config);
+    $this->openAISettings($form, $form_state, $config);
+    $this->pineconeSettings($form, $form_state, $config);
+    $this->otherSettings($form, $form_state, $config);
+
+
+
+
+
+
+    
+
+
+
 
     // Add more form elements or tabs as needed.
 
@@ -190,32 +266,49 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
 
 
 
-
-
-    // Add URL form submission handler
+    /**
+     * 
+     * These functions are for adding/removing urls
+     * 
+     */
     public function addUrl(array &$form, FormStateInterface $form_state) {
       $form_state->set('num_urls', $form_state->get('num_urls') + 1);
       $form_state->setRebuild();
     }
-
-    // Add URL form AJAX callback
     public function addUrlAjaxCallback(array &$form, FormStateInterface $form_state) {
       return $form['display_settings']['urls'];
     }
-
-    // Remove URL form submission handler
     public function removeUrl(array &$form, FormStateInterface $form_state) {
       if( $form_state->get('num_urls') - 1 >= 0){
         $form_state->set('num_urls', $form_state->get('num_urls') - 1);
       }
       $form_state->setRebuild();
     }
-
-    // Remove URL form AJAX callback
     public function removeUrlAjaxCallback(array &$form, FormStateInterface $form_state) {
       return $form['display_settings']['urls'];
     }
 
+    /**
+     * 
+     * These functions are for adding/removing categories
+     * 
+     */
+    public function addCategory(array &$form, FormStateInterface $form_state) {
+      $form_state->set('num_categories', $form_state->get('num_categories') + 1);
+      $form_state->setRebuild();
+    }
+    public function addCategoryAjaxCallback(array &$form, FormStateInterface $form_state) {
+      return $form['chatbot_categories']['categories'];
+    }
+    public function removeCategory(array &$form, FormStateInterface $form_state) {
+      if( $form_state->get('num_categories') - 1 >= 0){
+        $form_state->set('num_categories', $form_state->get('num_categories') - 1);
+      }
+      $form_state->setRebuild();
+    }
+    public function removeCategoryAjaxCallback(array &$form, FormStateInterface $form_state) {
+      return $form['chatbot_categories']['categories'];
+    }
 
 
 
@@ -245,6 +338,14 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
 
     $config->set('urls', $urls);
     $config->set('num_urls', $numUrls);
+
+    $categories = [];
+    $numCategories = $form_state->get('num_categories');
+    for ($i = 0; $i < $numCategories; $i++) {
+      $category = $form_state->getValue('categories')[$i];
+      $categories[$i] = $category;
+    }
+    $config->set('categories', $categories);
 
     $config->save();
 
