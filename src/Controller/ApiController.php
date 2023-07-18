@@ -16,6 +16,10 @@ class ApiController extends ControllerBase {
         $config = \Drupal::config('drupal_gpt.settings');
         return $config->get('openai_model');
     }
+    private function getAccuracyGptModel(){
+        $config = \Drupal::config('drupal_gpt.settings');
+        return $config->get('openai_model_accuracy');
+    }
     
     private function getPineconeEnvironment(){
         $config = \Drupal::config('drupal_gpt.settings');
@@ -93,8 +97,10 @@ class ApiController extends ControllerBase {
         $ch = curl_init();
         $url = 'https://api.openai.com/v1/chat/completions';
         $api_key = $this->getApiKey();
+        $accuracy_model = $this->getAccuracyGptModel();
+        if(empty($accuracy_model)) $accuracy_model = $this->getGptModel();
         $post_fields = array(
-            "model" => $this->getGptModel(),
+            "model" => $this->getAccuracyGptModel(),
             "messages" => $prompt,
             "max_tokens" => $max_tokens,
             "temperature" => $temperature

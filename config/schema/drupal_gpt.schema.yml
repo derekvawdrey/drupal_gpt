@@ -34,6 +34,9 @@ drupal_gpt.settings:
     openai_model:
       type: text
       label: 'What model do you want the chatbot to use?'
+    openai_model_accuracy:
+      type: text
+      label: 'What model do you want the chatbot to use for determining accuracy?'
     pinecone_environment:
       type: text
       label: 'What is the environment for your index?'

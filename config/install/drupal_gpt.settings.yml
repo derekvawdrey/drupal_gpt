@@ -1,5 +1,6 @@
 openai_key: ""
 openai_model: ""
+openai_model_accuracy: ""
 pinecone_environment: ""
 pinecone_key: ""
 pinecone_index_url: ""
