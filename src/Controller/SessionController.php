@@ -63,7 +63,8 @@ class SessionController extends ControllerBase {
     private function promptifyMessage(string $message, $session){
         $prompt = "
         If needed optimize this message to give the best context possible surrounding the query.
-        If necessary, include program name, peoples names, etc";
+        If necessary, include program name, peoples names, etc.
+        If no optimization is necessary, simply repeat the message.";
 
         $messages = $session->generateMessageArray($prompt);
         $messages = [];

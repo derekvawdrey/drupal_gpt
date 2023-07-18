@@ -90,7 +90,7 @@ class DrupalGPTSession {
                 if($message->getContext() != null){
                     $message_json = [
                         "content" => "Context surrounded in ###" . 
-                        "###" . $context . "###",
+                        "###" . $message->getContext() . "###",
                         "role"=> "system"
                     ];
                     $messages[] = $message_json;
@@ -111,10 +111,6 @@ class DrupalGPTSession {
             $increment++;
 
             $messages[] = $message_json;
-        }
-
-        if(empty($messages)){
-
         }
 
         return $messages;
