@@ -252,6 +252,37 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
       '#description' => $this->t('A session will be declared inactive if a user hasn\'t sent a message in this many minutes.'),
     ];
   }
+  private function contextSettings(array &$form, FormStateInterface &$form_state, $config) {
+    // Add the vertical tabs element.
+    $form['vertical_tabs'] = [
+      '#type' => 'vertical_tabs',
+      '#attached' => ['library' => ['system/drupal.vertical-tabs']],
+    ];
+
+    $form['chatbot_context'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Chatbot Context'),
+      '#group' => 'vertical_tabs',
+    ];
+    
+    $selectedCategory = $form_state->get("selected_category") ?? '';
+    $form['chatbot_context']['selected_context_category'] = [
+      '#type' => 'select',
+      '#title' => 'Category',
+      '#options' => $config->get('chatbot_categories') ?? [],
+      '#default_value' => $selectedCategory,
+      '#required' => TRUE,
+      '#group' => 'vertical_tabs',
+      '#ajax' => [
+        'callback' => '::categoryChangeAjax',
+        'event' => 'change',
+        'wrapper' => 'vertical_tabs',
+      ],
+    ];
+    // Add the rest of your form elements or settings here.
+  
+    return $form;
+  }
 
 
   // Implement buildForm() to create the form elements.
@@ -260,19 +291,10 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
 
     $this->chatBotSettings($form, $form_state, $config);
     $this->categorySettings($form, $form_state, $config);
+    $this->contextSettings($form, $form_state, $config);
     $this->openAISettings($form, $form_state, $config);
     $this->pineconeSettings($form, $form_state, $config);
     $this->otherSettings($form, $form_state, $config);
-
-
-
-
-
-
-    
-
-
-
 
     // Add more form elements or tabs as needed.
 
@@ -332,6 +354,25 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
       return $form['chatbot_categories']['categories'];
     }
 
+  
+  /**
+   * 
+   * These functions help with adding context to the chatbot
+   * 
+   */
+  public function categoryChangeAjax(array &$form, FormStateInterface $form_state) {
+    $response = new AjaxResponse();
+  
+    // Get the selected category.
+    $selectedCategory = $form_state->getValue('selected_context_category');
+    $form_state->set("selected_category",$selectedCategory);
+    // Perform any action you want with the selected category.
+  
+    // If you want to update the form elements dynamically, you can use commands.
+    $response->addCommand(new HtmlCommand('#vertical_tabs', $form['vertical_tabs']));
+  
+    return $response;
+  }
 
 
 
