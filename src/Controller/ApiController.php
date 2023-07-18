@@ -241,9 +241,9 @@ class ApiController extends ControllerBase {
      * @return string The context needed to answer the users question.
      * 
      */
-    public function getContextFromMessage($message){
+    public function getContextFromMessage($message, $category){
 
-        $embedding = $this->getEmbeddingFromMessage($message);
+        $embedding = $this->getEmbeddingFromMessage($message . "Program is: " . $category);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $this->getPineconeIndex() . '/query');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);

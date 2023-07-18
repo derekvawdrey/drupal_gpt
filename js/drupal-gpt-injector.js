@@ -136,6 +136,7 @@
                     data: {
                       session_id: uuid,
                       message: message,
+                      category: chatbotCategoy,
                     },
                     success: function(response) {
                       appendChatbotMessage(response.message.message, response.message.accuracy);
