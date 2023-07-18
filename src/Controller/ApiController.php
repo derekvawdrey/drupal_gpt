@@ -34,7 +34,10 @@ class ApiController extends ControllerBase {
     
     /**
      * 
-     * This is for a message chain, not a single prompt
+     * @param array $messages, The conversation chain so that the AI can return a message
+     * @param int $max_tokens, the total number of tokens that the API can return as a response
+     * @param int $temperature, the randomness of the message
+     * @return Json The json of the message returned
      * 
      */
     private function messageChainAICall($messages, int $max_tokens = 250, float $temperature = 0.7){
@@ -67,7 +70,7 @@ class ApiController extends ControllerBase {
      * @param String $context
      * @param int $max_tokens
      * @param int $temperature
-     * @return 
+     * @return double A number from 1.00 to 0.00 depicting accuracy.
      * 
      */
     private function messageAccuracyVerification($message, $context, int $max_tokens = 250, float $temperature = 0.7){
@@ -110,6 +113,12 @@ class ApiController extends ControllerBase {
         return json_decode($result,true);
     }
 
+    /**
+     * 
+     * @param string $message, convert the users message into a embedding vector
+     * @param array embedding vector
+     * 
+     */
     public function getEmbeddingFromMessage($message){
         $ch = curl_init();
         $url = 'https://api.openai.com/v1/embeddings';
@@ -132,11 +141,101 @@ class ApiController extends ControllerBase {
         return json_decode($result,true)["data"][0]["embedding"];
     }
 
+    /**
+     * 
+     * @param string $id, id of the pinecone embeddeded entry
+     * @param string $context, the text that will be pulled in as context for ChatGPT
+     * @param string $category, the category the context belongs to
+     * 
+     */
+    public function updateContextFromId($id, $context, $category){
+        $embedding = $this->getEmbeddingFromMessage($context);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $this->getPineconeIndex() . '/vectors/update');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Api-Key: ' . $this->getPineconeKey(),
+            'Content-Type: application/json',
+        ]);
 
+        $post_fields = array(
+            "id"=> $id, 
+            "setMetadata"=>[
+                "context"=>$context,
+                "category"=>$category
+            ],
+            "values"=>$embedding
+        );
+
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post_fields));
+        curl_close($ch);
+    }
+
+    /**
+     * 
+     * Inserts the context into the pinecone database
+     * @param string $id, id of the pinecone embeddedd entry
+     * @param string $context, the text that will be pulled in as context for ChatGPT
+     * @param string $category, the category the context belongs to
+     * 
+     */
+    public function insertContext($id, $context, $category){
+        $embedding = $this->getEmbeddingFromMessage($context);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $this->getPineconeIndex() . '/vectors/upsert');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Api-Key: ' . $this->getPineconeKey(),
+            'Content-Type: application/json',
+        ]);
+
+        $post_fields = array(
+            "vectors"=>[
+                [
+                    "id"=>$id,
+                    "values"=>$embedding,
+                    "metadata"=>[
+                        "context"=>$context,
+                        "category"=>$category,
+                    ],   
+                ],
+            ],
+        );
+
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post_fields));
+        curl_close($ch);
+    }
+
+
+    /**
+     * 
+     * @param string $id
+     *
+     */
+    public function deleteContextFromId($id){
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $this->getPineconeIndex() . '/vectors/delete?ids=' . $id);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Api-Key: ' . $this->getPineconeKey(),
+            'Content-Type: application/json',
+        ]);
+        curl_close($ch);
+    }
+
+    /**
+     * 
+     * 
+     * @param string $message, The users message
+     * @return string The context needed to answer the users question.
+     * 
+     */
     public function getContextFromMessage($message){
 
         $embedding = $this->getEmbeddingFromMessage($message);
-        \Drupal::logger("embedding")->info(json_encode($embedding));
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $this->getPineconeIndex() . '/query');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -185,6 +284,7 @@ class ApiController extends ControllerBase {
      * @param array $messages
      * @param int $max_tokens
      * @param int $temperature
+     * @return string, the AI's response
      * 
      */
     public function returnMessageChainText($messages, int $max_tokens = 250, float $temperature = 0.7){
