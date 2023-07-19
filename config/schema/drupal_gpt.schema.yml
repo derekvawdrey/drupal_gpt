@@ -55,3 +55,6 @@ drupal_gpt.settings:
     cleanup_after_minutes:
       type: integer
       label: 'A session will be declared inactive if a user hasnt sent a message in this many minutes.'
+    enabled_accuracy_meter:
+      type: boolean
+      label: 'Enable the accuarcy meter'

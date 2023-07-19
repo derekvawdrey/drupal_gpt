@@ -15,3 +15,12 @@ drupal_gpt.open_ai_call:
     _controller: '\Drupal\drupal_gpt\Controller\SessionController::processMessageEndpoint'
   requirements:
     _permission: 'access content'
+
+
+###### TEST ROUTES ######
+drupal_gpt.test_messages:
+  path: '/api/open_ai/test_messages'
+  defaults:
+    _controller: '\Drupal\drupal_gpt\Controller\TestController::testLines'
+  requirements:
+    _permission: 'access content'

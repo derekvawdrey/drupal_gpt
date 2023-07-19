@@ -199,6 +199,13 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('openai_model_accuracy'),
       '#description' => $this->t('This allows you to have GPT4.0 or higher to give better accuracy information'),
     ];
+
+    $form['openai_settings']['accuracy_meter'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Enable Accuracy Meter'),
+      '#default_value' => $config->get('enabled_accuracy_meter'),
+      '#description' => $this->t('Disabling this feature will allow you to save money, but will not allow the AI to determine if a message is accurate'),
+    ];
   }
   private function pineconeSettings(array &$form, FormStateInterface &$form_state, $config){
     // Tab 2: Pinecone Settings.
@@ -388,6 +395,7 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
     $config = $this->config('drupal_gpt.settings');
     $config->set('openai_key', $form_state->getValue('openai_key'));
     $config->set('openai_model', $form_state->getValue('openai_model'));
+    $config->set('enabled_accuracy_meter', $form_state->getValue('enabled_accuracy_meter'));
     $config->set('openai_model_accuracy', $form_state->getValue('openai_model_accuracy'));
     $config->set('pinecone_environment', $form_state->getValue('pinecone_environment'));
     $config->set('pinecone_key', $form_state->getValue('pinecone_key'));

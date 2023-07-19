@@ -78,8 +78,9 @@ class DrupalGPTSession {
 
         if(empty($prompt)){
             $prompt = "Keep responses less than 80 words, and have an energetic writing style, engaging, and fun. 
-            Talk in the style of David O. McKay. Instead of giving inaccurate information, reply with something like 'Sorry, I am not sure'.
-            Refuse to respond with anything inappropriate or would put BYU in a bad light. Keep responses less than 80 words.";
+            Instead of giving inaccurate information, reply with something like 'Sorry, I am not sure'.
+            Refuse to respond with anything inappropriate or would put BYU in a bad light. Keep responses less than 80 words.
+            Talk in the style of David O. McKay but avoid being too wordy.";
         }
         // Do this
         $messages = [];
@@ -87,19 +88,16 @@ class DrupalGPTSession {
         foreach($this->message_chain as $message){
 
             // Append Context for message and also how the AI should act
-            if($increment > count($this->message_chain)-2){
+            if($increment >= count($this->message_chain)-1){
                 if($message->getContext() != null){
                     $message_json = [
                         "content" => "Context surrounded in ###" . 
                         "###" . $message->getContext() . "###",
-                        "role"=> "system"
+                        "role"=> "user"
                     ];
                     $messages[] = $message_json;
                 }
-                $message_json = [
-                    "content" => $prompt,
-                    "role"=> "user"
-                ];
+                
                 $messages[] = $message_json;
             }
             
@@ -111,6 +109,12 @@ class DrupalGPTSession {
 
             $increment++;
 
+            $messages[] = $message_json;
+
+            $message_json = [
+                "content" => $prompt,
+                "role"=> "system"
+            ];
             $messages[] = $message_json;
         }
 

@@ -44,9 +44,14 @@ class DrupalGPTMessage {
      * 
      */
 
-     private function verifyAccuracy(){
-        return $this->api_controller->getMessageAccurate($this->message, $this->context);
-     }
+      private function verifyAccuracy(){
+         $config = \Drupal::config('drupal_gpt.settings');
+         $enabled = $config->get("enabled_accuracy_meter");
+         if($enabled){
+            return $this->api_controller->getMessageAccurate($this->message, $this->context);
+         }
+         return 1;
+      }
 
      public function isAccurate(){
         if($this->accuracy > 0.6) return true;

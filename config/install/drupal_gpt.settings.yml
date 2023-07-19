@@ -10,3 +10,4 @@ cleanup_after_minutes: 3
 urls: []
 chatbot_categories: []
 num_urls: 1
+enabled_accuracy_meter: false
