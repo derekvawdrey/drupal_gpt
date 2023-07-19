@@ -85,21 +85,17 @@ class DrupalGPTSession {
         // Do this
         $messages = [];
         $increment = 0;
+        if($message->getContext() != null){
+            $message_json = [
+                "content" => "START CONTEXT\n" . $message->getContext() . "\nEND CONTEXT\n",
+                "role"=> "user"
+            ];
+            $messages[] = $message_json;
+        }
+
         foreach($this->message_chain as $message){
 
             // Append Context for message and also how the AI should act
-            if($increment >= count($this->message_chain)-1){
-                if($message->getContext() != null){
-                    $message_json = [
-                        "content" => "Context surrounded in ###" . 
-                        "###" . $message->getContext() . "###",
-                        "role"=> "user"
-                    ];
-                    $messages[] = $message_json;
-                }
-                
-                $messages[] = $message_json;
-            }
             
             //Append the users response to the thread
             $message_json = [
@@ -109,14 +105,15 @@ class DrupalGPTSession {
 
             $increment++;
 
-            $messages[] = $message_json;
-
-            $message_json = [
-                "content" => $prompt,
-                "role"=> "system"
-            ];
-            $messages[] = $message_json;
         }
+
+        $messages[] = $message_json;
+
+        $message_json = [
+            "content" => $prompt,
+            "role"=> "system"
+        ];
+        $messages[] = $message_json;
 
         return $messages;
     }

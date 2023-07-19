@@ -798,7 +798,7 @@ class TestController extends ControllerBase {
 
         set_time_limit(1000);
         $response = [];
-        $max_response = 10;
+        $max_response = 5;
         $current_index = 0;
         foreach($messages as $message){
             if($current_index > $max_response) break;
