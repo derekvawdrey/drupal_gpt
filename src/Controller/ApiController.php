@@ -296,7 +296,7 @@ class ApiController extends ControllerBase {
      * @return string, the AI's response
      * 
      */
-    public function returnMessageChainText($messages, int $max_tokens = 80, float $temperature = 0.7){
+    public function returnMessageChainText($messages, int $max_tokens = 150, float $temperature = 0.7){
         $message_response = $this->messageChainAICall($messages, $max_tokens, $temperature);
         if(isset($message_response["choices"])) return $message_response["choices"][0]["message"]["content"];
         return "There was an error generating the response.";

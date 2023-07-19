@@ -97,7 +97,7 @@
         function initListeners(){
 
             $(".chatbot__toggle").on('click', function(){
-                $toggle_value = !toggled ? "450px" : "0px";
+                $toggle_value = !toggled ? "100%" : "0px";
                 $opacity_value = !toggled ? "1" : "0";
                 $button_value = !toggled ? "rotate(45deg)" : "";
                 toggled = !toggled;
