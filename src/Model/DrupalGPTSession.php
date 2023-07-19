@@ -38,19 +38,21 @@ class DrupalGPTSession {
     private function loadMessagesFromNode(){
         $this->message_chain = [];
         $json = json_decode($this->session_node->get("body")->value, true);
-        foreach($json["messages"] as $message){
-            $accuracy = $message["accuracy"];
-            $context = $message["context"];
-            $content = $message["content"];
-            $role = $message["role"];
-            $ai_response = false;
-            if($role == "assistant") $ai_response = true;
-            $drupal_gpt_message = new DrupalGPTMessage($content, "", true, true, $accuracy);
-            $drupal_gpt_message->setAccuracy($accuracy);
-            $drupal_gpt_message->setContext($context);
-            $drupal_gpt_message->setMessageAuthor($role);
-            $drupal_gpt_message->setMessage($content);
-            $this->message_chain[] = $drupal_gpt_message;
+        if(isset($json["messages"])){
+            foreach($json["messages"] as $message){
+                $accuracy = $message["accuracy"];
+                $context = $message["context"];
+                $content = $message["content"];
+                $role = $message["role"];
+                $ai_response = false;
+                if($role == "assistant") $ai_response = true;
+                $drupal_gpt_message = new DrupalGPTMessage($content, "", true, true, $accuracy);
+                $drupal_gpt_message->setAccuracy($accuracy);
+                $drupal_gpt_message->setContext($context);
+                $drupal_gpt_message->setMessageAuthor($role);
+                $drupal_gpt_message->setMessage($content);
+                $this->message_chain[] = $drupal_gpt_message;
+            }
         }
     }
 
@@ -77,22 +79,15 @@ class DrupalGPTSession {
     public function generateMessageArray($prompt = ""){
 
         if(empty($prompt)){
-            $prompt = "Keep responses less than 80 words, and have an energetic writing style, engaging, and fun. 
+            $prompt = "You will keep responses less than 80 words, and have an energetic writing style, engaging, and fun. 
             Instead of giving inaccurate information, reply with something like 'Sorry, I am not sure'.
-            Refuse to respond with anything inappropriate or would put BYU in a bad light. Keep responses less than 80 words.
-            Talk in the style of David O. McKay but avoid being too wordy.";
+            You will refuse to respond with anything inappropriate or would put BYU in a bad light.
+            You will talk in the style of David O. McKay.";
         }
         // Do this
         $messages = [];
         $increment = 0;
-        if($message->getContext() != null){
-            $message_json = [
-                "content" => "START CONTEXT\n" . $message->getContext() . "\nEND CONTEXT\n",
-                "role"=> "user"
-            ];
-            $messages[] = $message_json;
-        }
-
+        $last_message = null;
         foreach($this->message_chain as $message){
 
             // Append Context for message and also how the AI should act
@@ -102,18 +97,31 @@ class DrupalGPTSession {
                 "content"=>$message->getMessage(),
                 "role"=>$message->getMessageAuthor(),
             ];
+            $messages[] = $message_json;
 
+            $last_message = $message;
             $increment++;
 
         }
 
-        $messages[] = $message_json;
+        // Insert the last messages context into the message chain
+        if($last_message != null){
+            if($last_message->getContext() != null){
+                $message_json = [
+                    "content" => "START CONTEXT\n" . $last_message->getContext() . "\nEND CONTEXT\n",
+                    "role"=> "user"
+                ];
+                array_unshift($messages, $message_json);
+            }
+        }
 
-        $message_json = [
+        
+        // Inject the system prompt into the context
+        $prompt_message = [
             "content" => $prompt,
             "role"=> "system"
         ];
-        $messages[] = $message_json;
+        $messages[] = $prompt_message;
 
         return $messages;
     }
