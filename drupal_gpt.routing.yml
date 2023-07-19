@@ -19,8 +19,14 @@ drupal_gpt.open_ai_call:
 
 ###### TEST ROUTES ######
 drupal_gpt.test_messages:
-  path: '/api/open_ai/test_messages'
+  path: '/api/open_ai/test/check_questions'
   defaults:
     _controller: '\Drupal\drupal_gpt\Controller\TestController::testLines'
+  requirements:
+    _permission: 'access content'
+drupal_gpt.insert_test_data:
+  path: '/api/open_ai/test/insert_test_data'
+  defaults:
+    _controller: '\Drupal\drupal_gpt\Controller\EmbeddedEntryController::embedIntoPinecone'
   requirements:
     _permission: 'access content'

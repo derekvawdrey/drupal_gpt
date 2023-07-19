@@ -190,6 +190,7 @@ class ApiController extends ControllerBase {
      */
     public function insertContext($id, $context, $category){
         $embedding = $this->getEmbeddingFromMessage($context);
+        \Drupal::logger("embeddings")->info("Embedding :)");
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $this->getPineconeIndex() . '/vectors/upsert');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -213,10 +214,11 @@ class ApiController extends ControllerBase {
         );
 
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post_fields));
+        $result = curl_exec($ch);
         curl_close($ch);
     }
 
-
+     
     /**
      * 
      * @param string $id
@@ -231,6 +233,7 @@ class ApiController extends ControllerBase {
             'Api-Key: ' . $this->getPineconeKey(),
             'Content-Type: application/json',
         ]);
+        $result = curl_exec($ch);
         curl_close($ch);
     }
 
@@ -255,7 +258,7 @@ class ApiController extends ControllerBase {
 
         $post_fields = array(
             "vector" => $embedding,
-            "topK" => 3,
+            "topK" => 6,
             "includeValues" => false,
             "includeMetadata" => true
         );
@@ -263,9 +266,14 @@ class ApiController extends ControllerBase {
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post_fields));
 
         $response = json_decode(curl_exec($ch),true);
-
+        $context = "";
+        if(isset($response["matches"])){
+            foreach($response["matches"] as $text){
+                $context .= $text["metadata"]["context"] . "\n\n";
+            }
+        }
         curl_close($ch);
-        return $response["matches"][0]["metadata"]["text"];
+        return $context;
     }
 
     /**

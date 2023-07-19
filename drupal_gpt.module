@@ -19,3 +19,10 @@ function drupal_gpt_page_attachments_alter(array &$attachments) {
         $attachments['#attached']['drupalSettings']['drupal_gpt']['category'] = $category;
     }
 }
+
+function drupal_gpt_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  // Add custom CSS to the specific form.
+  if ($form_id === 'drupal_gpt_settings_form') {
+    $form['#attached']['library'][] = 'drupal_gpt/custom-form-styles';
+  }
+}

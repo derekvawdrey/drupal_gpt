@@ -1,0 +1,8 @@
+.container-inline {
+    display: inline-block;
+    margin-right: 10px; /* Adjust as needed */
+}
+
+.container-inline .limited-input{
+    width:350px;
+}

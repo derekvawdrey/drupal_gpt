@@ -4,3 +4,7 @@ drupal-gpt-hook:
   css:
     component:
       css/chatbot.css: {}
+custom-form-styles:
+  css:
+    component:
+      css/custom-form-styles.css: {}

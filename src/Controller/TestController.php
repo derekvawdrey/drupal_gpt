@@ -798,8 +798,8 @@ class TestController extends ControllerBase {
 
         set_time_limit(1000);
         $response = [];
-        $max_response = 15;
-        for($i = 6; $i < $max_response; $i++){
+        $max_response = 30;
+        for($i = 16; $i < $max_response; $i++){
             $response[] = [
                 "user_message" => $messages[$i],
                 "processed_message" => json_decode($this->session_controller->processUserMessage(uniqid(), $messages[$i], "Elementary Education")->getContent(),true)

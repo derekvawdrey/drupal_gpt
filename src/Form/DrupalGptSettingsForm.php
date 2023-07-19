@@ -4,6 +4,9 @@ namespace Drupal\drupal_gpt\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\AppendCommand;
+use Drupal\Core\Ajax\HtmlCommand;
 
 class DrupalGPTSettingsForm extends ConfigFormBase {
 
@@ -152,8 +155,10 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
         '#type' => 'textfield',
         '#title' => $this->t('Category'),
         '#default_value' => $category,
+        '#prefix' => '<div class="container-inline">',
+        '#suffix' => '</div>',
         '#attributes' => [
-          'class' => ['col-12', 'col-md-9'],
+          'class' => ['limited-input'],
         ],
       ];
       $form['chatbot_categories']['categories'][$i]['actions']['remove'] = [
@@ -165,6 +170,8 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
           'wrapper' => 'categories-wrapper',
         ],
         '#name' => 'remove_category_' . $i,
+        '#prefix' => '<div class="container-inline">',
+        '#suffix' => '</div>',
         '#attributes' => [
           'class' => ['remove-category','col-12, col-md-3'],
           'data-category-index' => $i, // Store the category index as data attribute
@@ -266,7 +273,11 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
     ];
   }
   private function contextSettings(array &$form, FormStateInterface &$form_state, $config) {
-    // Add the vertical tabs element.
+    /**
+     * 
+     * Static elements
+     * 
+     */
     $form['vertical_tabs'] = [
       '#type' => 'vertical_tabs',
       '#attached' => ['library' => ['system/drupal.vertical-tabs']],
@@ -286,13 +297,44 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
       '#default_value' => $selectedCategory,
       '#required' => TRUE,
       '#group' => 'vertical_tabs',
+      '#prefix' => '<div class="container-inline">',
+      '#suffix' => '</div>',
       '#ajax' => [
         'callback' => '::categoryChangeAjax',
         'event' => 'change',
         'wrapper' => 'vertical_tabs',
       ],
     ];
-    // Add the rest of your form elements or settings here.
+    
+    $form['chatbot_context']['add_context'] = [
+      '#type' => 'button',
+      '#value' => $this->t('Add Context'),
+      '#ajax' => [
+        'callback' => '::addContextAjax',
+        'wrapper' => 'context-container',
+      ],
+      '#prefix' => '<div class="container-inline">',
+      '#suffix' => '</div>',
+    ];
+
+
+    $form['chatbot_context']['context_container'] = [
+      '#type' => 'container',
+      '#prefix' => '<div id="context-container">',
+      '#suffix' => '</div>',
+      '#tree' => TRUE,
+    ];
+    
+    
+    /**
+     * 
+     * Dynamic elements
+     * 
+     */
+    $context_entries = $form_state->get('context_entries') ?? [];
+    foreach ($context_entries as $index => $context_entry) {
+      $form['chatbot_context']['context_container'][$index] = $context_entry;
+    }
   
     return $form;
   }
@@ -386,6 +428,79 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
   
     return $response;
   }
+
+
+  /**
+   * 
+   * CONTEXT EDITING
+   * 
+   */
+
+   public function addContextAjax(array &$form, FormStateInterface $form_state) {
+    $context_entries = $form_state->get('context_entries') ?? [];
+  
+    $context_entry = [
+      '#type' => 'container',
+      'title' => [
+        '#type' => 'textfield',
+        '#title' => $this->t('Title'),
+        '#required' => TRUE,
+      ],
+      'text' => [
+        '#type' => 'text_format',
+        '#title' => $this->t('Text Document'),
+        '#format' => 'full_html',
+        '#required' => TRUE,
+      ],
+      'actions' => [
+        '#type' => 'container',
+      ],
+    ];
+  
+    $context_entry['actions']['modify'] = [
+      '#type' => 'button',
+      '#value' => $this->t('Modify Context'),
+      '#ajax' => [
+        'callback' => '::modifyContextAjax',
+        'wrapper' => 'context-container',
+      ],
+    ];
+  
+    $context_entry['actions']['remove'] = [
+      '#type' => 'button',
+      '#value' => $this->t('Remove Context'),
+      '#ajax' => [
+        'callback' => '::removeContextAjax',
+        'wrapper' => 'context-container',
+      ],
+    ];
+  
+    $context_entries[] = $context_entry;
+    $form_state->set('context_entries', $context_entries);
+  
+    $response = new AjaxResponse();
+    $response->addCommand(new AppendCommand('#context-container', $form['chatbot_context']['context_container']));
+    return $response;
+  }
+  
+  public function modifyContextAjax(array &$form, FormStateInterface $form_state) {
+    // Modify context entry logic here.
+  
+    return $form['chatbot_context']['context_container'];
+  }
+
+  public function removeContextAjax(array &$form, FormStateInterface $form_state) {
+    $triggering_element = $form_state->getTriggeringElement();
+    $delta = $triggering_element['#parents'][1];
+    $context_entries = $form_state->get('context_entries') ?? [];
+  
+    unset($context_entries[$delta]);
+    $form_state->set('context_entries', $context_entries);
+  
+    return $form['chatbot_context']['context_container'];
+  }
+  
+  
 
 
 

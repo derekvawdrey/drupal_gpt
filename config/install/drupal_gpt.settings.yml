@@ -9,5 +9,6 @@ max_requests_per_minute: 10
 cleanup_after_minutes: 3
 urls: []
 chatbot_categories: []
+chatbot_context: []
 num_urls: 1
 enabled_accuracy_meter: false
