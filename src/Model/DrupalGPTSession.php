@@ -37,7 +37,10 @@ class DrupalGPTSession {
      */
     private function loadMessagesFromNode(){
         $this->message_chain = [];
-        $json = json_decode($this->session_node->get("body")->value, true) ?? [];
+        $json = [];
+        if(!empty($this->session_node->get("body")->value)){
+            $json = json_decode($this->session_node->get("body")->value, true);
+        }
         if(isset($json["messages"])){
             foreach($json["messages"] as $message){
                 $accuracy = $message["accuracy"];
@@ -79,10 +82,9 @@ class DrupalGPTSession {
     public function generateMessageArray($prompt = ""){
 
         if(empty($prompt)){
-            $prompt = "You will keep responses less than 80 words, and have an energetic writing style, engaging, and fun. 
-            Instead of giving inaccurate information, reply with something like 'Sorry, I am not sure'.
+            $prompt = "Instead of giving inaccurate information, reply with something like 'Sorry, I am not sure'.
             You will refuse to respond with anything inappropriate or would put BYU in a bad light.
-            You will talk in the style of David O. McKay.";
+            You will talk in the style of David O. McKay. You will have an energetic writing style, be engaging, and fun.";
         }
         // Do this
         $messages = [];

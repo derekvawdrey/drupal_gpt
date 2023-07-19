@@ -798,13 +798,11 @@ class TestController extends ControllerBase {
 
         set_time_limit(1000);
         $response = [];
-        $max_response = 5;
-        $current_index = 0;
-        foreach($messages as $message){
-            if($current_index > $max_response) break;
+        $max_response = 15;
+        for($i = 6; $i < $max_response; $i++){
             $response[] = [
-                "user_message" => $message,
-                "processed_message" => json_decode($this->session_controller->processUserMessage(uniqid(), $message, "ComD")->getContent(),true)
+                "user_message" => $messages[$i],
+                "processed_message" => json_decode($this->session_controller->processUserMessage(uniqid(), $messages[$i], "Elementary Education")->getContent(),true)
             ];
             $current_index ++;
         }
