@@ -37,7 +37,7 @@ class DrupalGPTSession {
      */
     private function loadMessagesFromNode(){
         $this->message_chain = [];
-        $json = json_decode($this->session_node->get("body")->value, true);
+        $json = json_decode($this->session_node->get("body")->value, true) ?? [];
         if(isset($json["messages"])){
             foreach($json["messages"] as $message){
                 $accuracy = $message["accuracy"];
