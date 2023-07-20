@@ -5,7 +5,7 @@ namespace Drupal\drupal_gpt\Form;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Ajax\AjaxResponse;
-use Drupal\Core\Ajax\AppendCommand;
+use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Ajax\HtmlCommand;
 
 class DrupalGPTSettingsForm extends ConfigFormBase {
@@ -309,12 +309,14 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
     $form['chatbot_context']['add_context'] = [
       '#type' => 'button',
       '#value' => $this->t('Add Context'),
-      '#ajax' => [
-        'callback' => '::addContextAjax',
-        'wrapper' => 'context-container',
-      ],
       '#prefix' => '<div class="container-inline">',
       '#suffix' => '</div>',
+      '#submit' => ['::addContext'],
+      '#ajax' => [
+        'callback' => '::addContextAjax', // Add a new AJAX callback to handle the button click.
+        'event' => 'click',
+        'wrapper' => 'context-container', // This ID should match the ID of the container that holds the context textboxes.
+      ],
     ];
 
 
@@ -332,9 +334,20 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
      * 
      */
     $context_entries = $form_state->get('context_entries') ?? [];
-    foreach ($context_entries as $index => $context_entry) {
-      $form['chatbot_context']['context_container'][$index] = $context_entry;
+    $num_context_entries = $form_state->get('num_context_entries') ?? 1;
+
+    // Add context textboxes based on the number of entries stored in the form state.
+    for ($i = 0; $i < $num_context_entries; $i++) {
+      // You can adjust the settings of the textboxes as needed.
+      $form['chatbot_context']['context_container'][$i]['context_textbox'] = [
+        '#type' => 'textfield',
+        '#title' => 'Context ' . ($i + 1),
+        '#size' => 60,
+        '#maxlength' => 1750,
+        '#required' => TRUE,
+      ];
     }
+
   
     return $form;
   }
@@ -432,75 +445,30 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
 
   /**
    * 
-   * CONTEXT EDITING
+   * Context functions
    * 
    */
 
-   public function addContextAjax(array &$form, FormStateInterface $form_state) {
-    $context_entries = $form_state->get('context_entries') ?? [];
-  
-    $context_entry = [
-      '#type' => 'container',
-      'title' => [
-        '#type' => 'textfield',
-        '#title' => $this->t('Title'),
-        '#required' => TRUE,
-      ],
-      'text' => [
-        '#type' => 'text_format',
-        '#title' => $this->t('Text Document'),
-        '#format' => 'full_html',
-        '#required' => TRUE,
-      ],
-      'actions' => [
-        '#type' => 'container',
-      ],
-    ];
-  
-    $context_entry['actions']['modify'] = [
-      '#type' => 'button',
-      '#value' => $this->t('Modify Context'),
-      '#ajax' => [
-        'callback' => '::modifyContextAjax',
-        'wrapper' => 'context-container',
-      ],
-    ];
-  
-    $context_entry['actions']['remove'] = [
-      '#type' => 'button',
-      '#value' => $this->t('Remove Context'),
-      '#ajax' => [
-        'callback' => '::removeContextAjax',
-        'wrapper' => 'context-container',
-      ],
-    ];
-  
-    $context_entries[] = $context_entry;
-    $form_state->set('context_entries', $context_entries);
-  
-    $response = new AjaxResponse();
-    $response->addCommand(new AppendCommand('#context-container', $form['chatbot_context']['context_container']));
-    return $response;
-  }
-  
-  public function modifyContextAjax(array &$form, FormStateInterface $form_state) {
-    // Modify context entry logic here.
-  
-    return $form['chatbot_context']['context_container'];
+
+  public function addContext(array &$form, FormStateInterface $form_state){
+    // Get the number of existing context textboxes.
+    $num_context_entries = $form_state->get('num_context_entries') ?? 0;
+
+    // Increment the number of context entries and store it in the form state.
+    $num_context_entries++;
+    $form_state->set('num_context_entries', $num_context_entries);
+
+    // Rebuild the form to include the new context textbox.
+    $form_state->setRebuild();
   }
 
-  public function removeContextAjax(array &$form, FormStateInterface $form_state) {
-    $triggering_element = $form_state->getTriggeringElement();
-    $delta = $triggering_element['#parents'][1];
-    $context_entries = $form_state->get('context_entries') ?? [];
-  
-    unset($context_entries[$delta]);
-    $form_state->set('context_entries', $context_entries);
-  
+  /**
+   * AJAX callback to add a new context textbox.
+   */
+  public function addContextAjax(array &$form, FormStateInterface $form_state) {
+    // Return the updated form or the portion you want to update.
     return $form['chatbot_context']['context_container'];
   }
-  
-  
 
 
 

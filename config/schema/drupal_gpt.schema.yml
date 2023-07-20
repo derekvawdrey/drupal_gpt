@@ -32,12 +32,13 @@ drupal_gpt.settings:
           type: mapping
           label: 'Context Entry'
           mapping:
-            id:
-              type: string
+            uuid:
+              type: list
               label: 'Category'
             number_of_context:
               type: string
               label: 'Category'
+            
     num_urls:
       type: integer
       label: 'Number of URLs'

@@ -285,7 +285,7 @@ class ApiController extends ControllerBase {
      * @return boolean
      * 
      */
-    public function getMessageAccurate($message, $context, int $max_tokens = 250, float $temperature = 0.7){
+    public function getMessageAccuracy($message, $context, int $max_tokens = 250, float $temperature = 0.7){
         $return_string = $this->messageAccuracyVerification($message, $context, $max_tokens, $temperature);
         $return_message = "";
         if (isset($return_string["choices"])){

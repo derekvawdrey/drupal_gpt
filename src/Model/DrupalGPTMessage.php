@@ -48,7 +48,7 @@ class DrupalGPTMessage {
          $config = \Drupal::config('drupal_gpt.settings');
          $enabled = $config->get("enabled_accuracy_meter");
          if($enabled){
-            return $this->api_controller->getMessageAccurate($this->message, $this->context);
+            return $this->api_controller->getMessageAccuracy($this->message, $this->context);
          }
          return 1;
       }

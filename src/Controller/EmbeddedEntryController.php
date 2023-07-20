@@ -108,6 +108,7 @@ class EmbeddedEntryController extends ControllerBase {
      * 
      * Using chatGPT we seperate out the sections of the paragraphs out into sections.  
      * 
+     * 
      */
     private function splitIntoSections($text){
         $delimeter = "###";
@@ -131,7 +132,25 @@ class EmbeddedEntryController extends ControllerBase {
         return $summaries;
     }
 
-    public function embedIntoPinecone($contexts){
+
+    /**
+     * 
+     * This function will take a POST parameter 'context' and then 
+     *  1. Seperate it out into chunks of 1750 words
+     *  2. Have openAI seperate it out into section summaries
+     *  3. embed each section as a singular context into pinecone for a specific category
+     * @request POST context - The text of the document
+     * @request POST category - What category does the context belong to?
+     * @return JsonResponse, Gives the user a general uuid to attribute to that specific context, and then a list of uuids
+     * 
+     */
+    public function embedIntoPinecone(Request $request){
+        $context = \Drupal::request()->request->get('context');
+        $category = \Drupal::request()->request->get('category');
+        // If the context is too large to be processed, we will split it into seperate chunks to be summarized
+        $contexts = $this->splitTextIntoChunks($context,1750);
+
+        // This is the general uuid for the group of contexts
         $general_uuid = $this->format_uuidv4(random_bytes(16));
         $uuids = [];
         foreach($contexts as $string){
@@ -142,21 +161,21 @@ class EmbeddedEntryController extends ControllerBase {
                 if(empty($chunk)) continue;
                 $current_uuid = $this->format_uuidv4(random_bytes(16));
                 $uuids[] = $current_uuid;
-                $this->api_controller->insertContext($current_uuid, $chunk, "Elementary Education");
+                $this->api_controller->insertContext($current_uuid, $chunk, $category);
             }
         }
         return new Jsonresponse(["uuid"=>$general_uuid, "vector_ids"=>$uuids]);
     }
 
-
+    // TODO: Move to a utilities class
     private function format_uuidv4($data)
     {
-    assert(strlen($data) == 16);
+        assert(strlen($data) == 16);
 
-    $data[6] = chr(ord($data[6]) & 0x0f | 0x40); // set version to 0100
-    $data[8] = chr(ord($data[8]) & 0x3f | 0x80); // set bits 6-7 to 10
-        
-    return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
+        $data[6] = chr(ord($data[6]) & 0x0f | 0x40); // set version to 0100
+        $data[8] = chr(ord($data[8]) & 0x3f | 0x80); // set bits 6-7 to 10
+            
+        return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
     }
 
 }
