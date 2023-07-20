@@ -372,13 +372,14 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
       
         // Add the context textbox within the accordion fieldset.
         $form['chatbot_context']['context_container'][$i]['context_textbox'] = [
-          '#type' => 'textfield',
+          '#type' => 'textarea',
           '#value' => $text,
           '#title' => $this->t('Context'),
           '#prefix' => '<div class="container-inline">',
           '#suffix' => '</div>',
           '#size' => 60,
           '#maxlength' => 1750,
+          '#rows' => 5,
           '#required' => TRUE,
         ];
         $form['chatbot_context']['context_container'][$i]['actions']['remove'] = [
