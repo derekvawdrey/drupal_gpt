@@ -8,19 +8,23 @@ use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Ajax\HtmlCommand;
 
-class DrupalGPTSettingsForm extends ConfigFormBase {
+class DrupalGPTSettingsForm extends ConfigFormBase
+{
 
   // Implement getFormId() to define a unique form ID.
-  public function getFormId() {
+  public function getFormId()
+  {
     return 'drupal_gpt_settings_form';
   }
 
   // Implement getEditableConfigNames() to specify the configuration names to edit.
-  protected function getEditableConfigNames() {
+  protected function getEditableConfigNames()
+  {
     return ['drupal_gpt.settings'];
   }
 
-  private function chatBotSettings(array &$form, FormStateInterface &$form_state, $config){
+  private function chatBotSettings(array &$form, FormStateInterface &$form_state, $config)
+  {
     // Add the vertical tabs element.
     $form['vertical_tabs'] = [
       '#type' => 'vertical_tabs',
@@ -77,7 +81,7 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
     }
     $categories = $config->get('chatbot_categories');
     $category_map = [];
-    foreach($categories as $category){
+    foreach ($categories as $category) {
       $category_map[$category] = $category;
     }
 
@@ -98,7 +102,8 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
       ];
     }
   }
-  private function categorySettings(array &$form, FormStateInterface &$form_state, $config){
+  private function categorySettings(array &$form, FormStateInterface &$form_state, $config)
+  {
     // Add the vertical tabs element.
     $form['vertical_tabs'] = [
       '#type' => 'vertical_tabs',
@@ -120,9 +125,9 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
     $categories = $config->get('chatbot_categories') ?? [];
     $numCategories = $form_state->get('num_categories') ?? count($categories);
     $skipCategories = $form_state->get('skip_categories') ?? [];
-    if($numCategories == 0) $numCategories = 1;
+    if ($numCategories == 0) $numCategories = 1;
     $form_state->set('num_categories', $numCategories);
-    $form_state->set('categories',$categories);
+    $form_state->set('categories', $categories);
 
     $form['chatbot_categories']['categories'] = [
       '#type' => 'fieldset',
@@ -143,7 +148,7 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
     ];
 
     for ($i = 0; $i < $numCategories; $i++) {
-      if(in_array($i, $skipCategories)) continue;
+      if (in_array($i, $skipCategories)) continue;
       $category = $categories[$i] ?? "Category1";
       $form['chatbot_categories']['categories'][$i] = [
         '#type' => 'container',
@@ -173,13 +178,14 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
         '#prefix' => '<div class="container-inline">',
         '#suffix' => '</div>',
         '#attributes' => [
-          'class' => ['remove-category','col-12, col-md-3'],
+          'class' => ['remove-category', 'col-12, col-md-3'],
           'data-category-index' => $i, // Store the category index as data attribute
         ],
       ];
     }
   }
-  private function openAISettings(array &$form, FormStateInterface &$form_state, $config){
+  private function openAISettings(array &$form, FormStateInterface &$form_state, $config)
+  {
     // Tab 1: OpenAI Settings.
     $form['openai_settings'] = [
       '#type' => 'details',
@@ -214,7 +220,8 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
       '#description' => $this->t('Disabling this feature will allow you to save money, but will not allow the AI to determine if a message is accurate'),
     ];
   }
-  private function pineconeSettings(array &$form, FormStateInterface &$form_state, $config){
+  private function pineconeSettings(array &$form, FormStateInterface &$form_state, $config)
+  {
     // Tab 2: Pinecone Settings.
     $form['pinecone_settings'] = [
       '#type' => 'details',
@@ -243,7 +250,8 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
       '#description' => $this->t('Remove the / at the end, and add https:// at the beginning'),
     ];
   }
-  private function otherSettings(array &$form, FormStateInterface &$form_state, $config){
+  private function otherSettings(array &$form, FormStateInterface &$form_state, $config)
+  {
     // Tab 3: Other Settings.
     $form['other_settings'] = [
       '#type' => 'details',
@@ -272,7 +280,8 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
       '#description' => $this->t('A session will be declared inactive if a user hasn\'t sent a message in this many minutes.'),
     ];
   }
-  private function contextSettings(array &$form, FormStateInterface &$form_state, $config) {
+  private function contextSettings(array &$form, FormStateInterface &$form_state, $config)
+  {
     /**
      * 
      * Static elements
@@ -293,20 +302,14 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
       '#type' => 'markup',
       '#markup' => '<h1>Category Contexts</h1>',
     ];
-    
+
     $defaultCategory = '';
-    if(isset($config->get('chatbot_categories')[0])){
+    if (isset($config->get('chatbot_categories')[0])) {
       $defaultCategory = $config->get('chatbot_categories')[0];
     }
     $selectedCategory = $form_state->get("selected_category") ?? $defaultCategory;
-    $form_state->set("selected_category",$selectedCategory);
-    foreach($config->get('chatbot_categories') as $category){
-      $added_attribute = [];
-      if($selectedCategory == $category){
-        $added_attribute = ['#attributes' => [
-          'style' => 'background-color: #92D293; color: white;', // Adjust the colors as desired
-        ]];
-      }
+    $form_state->set("selected_category", $selectedCategory);
+    foreach ($config->get('chatbot_categories') as $category) {
 
       $form['chatbot_context'][$category] = [
         '#type' => 'submit',
@@ -316,11 +319,10 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
         '#ajax' => [
           'callback' => '::categoryChangeAjax',
           'wrapper' => 'context-container',
-        ],
-        $added_attribute
+        ]
       ];
     }
-    
+
     $form['chatbot_context']['add_context'] = [
       '#type' => 'submit',
       '#value' => $this->t('Add Context'),
@@ -341,17 +343,17 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
       '#suffix' => '</div>',
       '#tree' => TRUE,
     ];
-    
-    
+
+
     /**
      * 
      * Dynamic elements
      * 
      */
     $context_from_config = $config->get('chatbot_context') ?? [];
-    
+
     $context_category_entires = 0;
-    if(isset($context_from_config[$selectedCategory])){
+    if (isset($context_from_config[$selectedCategory])) {
       $context_category_entires = count($context_from_config[$selectedCategory]);
     }
 
@@ -360,16 +362,16 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
     $removeContexts = $form_state->get('remove_contexts') ?? [];
     $form_state->set('num_context_entries', $num_context_entries);
     $form_state->set('context_updating', $context_updating);
-    if(!$context_updating){
+    if (!$context_updating) {
       // Add context textboxes based on the number of entries stored in the form state.
       for ($i = 0; $i < $num_context_entries; $i++) {
         $text = "";
-        if(isset($context_from_config[$selectedCategory]) && isset($context_from_config[$selectedCategory][$i])){
+        if (isset($context_from_config[$selectedCategory]) && isset($context_from_config[$selectedCategory][$i])) {
           $text = $context_from_config[$selectedCategory][$i]["context"];
         }
 
 
-        if(in_array($i, $removeContexts)) continue;
+        if (in_array($i, $removeContexts)) continue;
         // Create an accordion fieldset for each context entry.
         $form['chatbot_context']['context_container'][$i] = [
           '#type' => 'fieldset',
@@ -377,15 +379,15 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
           '#collapsible' => TRUE,
           '#collapsed' => TRUE, // You can set this to FALSE if you want the fieldset to be initially expanded.
         ];
-      
         // Add the context textbox within the accordion fieldset.
         $form['chatbot_context']['context_container'][$i]['context_textbox'] = [
-          '#type' => 'textfield',
+          '#type' => 'textarea',
           '#default_value' => $text,
           '#title' => $this->t('Context'),
           '#prefix' => '<div class="container-inline">',
           '#suffix' => '</div>',
           '#size' => 60,
+          '#rows' => 5,
           '#maxlength' => 1750,
           '#required' => TRUE,
         ];
@@ -401,12 +403,12 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
           '#prefix' => '<div class="container-inline">',
           '#suffix' => '</div>',
           '#attributes' => [
-            'class' => ['remove-context','col-12, col-md-3'],
+            'class' => ['remove-context', 'col-12, col-md-3'],
             'data-category-index' => $i, // Store the category index as data attribute
           ],
         ];
       }
-    }else{
+    } else {
       $form['chatbot_context']['context_container']['loading_sign'] = [
         '#type' => 'markup',
         '#markup' => '<div class="loading-sign">Loading...</div>',
@@ -429,13 +431,14 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
         'wrapper' => 'context-container',
       ],
     ];
-  
+
     return $form;
   }
 
 
   // Implement buildForm() to create the form elements.
-  public function buildForm(array $form, FormStateInterface $form_state) {
+  public function buildForm(array $form, FormStateInterface $form_state)
+  {
     $config = $this->config('drupal_gpt.settings');
 
     $this->chatBotSettings($form, $form_state, $config);
@@ -453,90 +456,111 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
 
 
 
-    /**
-     * 
-     * These functions are for adding/removing urls
-     * 
-     */
-    public function addUrl(array &$form, FormStateInterface $form_state) {
-      $form_state->set('num_urls', $form_state->get('num_urls') + 1);
-      $form_state->setRebuild();
+  /**
+   * 
+   * These functions are for adding/removing urls
+   * 
+   */
+  public function addUrl(array &$form, FormStateInterface $form_state)
+  {
+    $form_state->set('num_urls', $form_state->get('num_urls') + 1);
+    $form_state->setRebuild();
+  }
+  public function addUrlAjaxCallback(array &$form, FormStateInterface $form_state)
+  {
+    return $form['display_settings']['urls'];
+  }
+  public function removeUrl(array &$form, FormStateInterface $form_state)
+  {
+    if ($form_state->get('num_urls') - 1 >= 0) {
+      $form_state->set('num_urls', $form_state->get('num_urls') - 1);
     }
-    public function addUrlAjaxCallback(array &$form, FormStateInterface $form_state) {
-      return $form['display_settings']['urls'];
-    }
-    public function removeUrl(array &$form, FormStateInterface $form_state) {
-      if( $form_state->get('num_urls') - 1 >= 0){
-        $form_state->set('num_urls', $form_state->get('num_urls') - 1);
-      }
-      $form_state->setRebuild();
-    }
-    public function removeUrlAjaxCallback(array &$form, FormStateInterface $form_state) {
-      return $form['display_settings']['urls'];
-    }
-
-    /**
-     * 
-     * These functions are for adding/removing categories
-     * 
-     */
-    public function addCategory(array &$form, FormStateInterface $form_state) {
-      $form_state->set('num_categories', $form_state->get('num_categories') + 1);
-      $form_state->setRebuild();
-    }
-    public function addCategoryAjaxCallback(array &$form, FormStateInterface $form_state) {
-      return $form['chatbot_categories']['categories'];
-    }
-    public function removeCategoryItem(array &$form, FormStateInterface $form_state) {
-      if ($form_state->get('num_categories') - 1 >= 0) {
-          $triggering_element = $form_state->getTriggeringElement();
-          $category_index = (int) str_replace('remove_category_', '', $triggering_element['#name']);
-          $categories = $form_state->get('skip_categories') ?? [];
-          $categories[] = $category_index;
-          $form_state->set("skip_categories", $categories);
-          $form_state->setRebuild();
-      }
+    $form_state->setRebuild();
+  }
+  public function removeUrlAjaxCallback(array &$form, FormStateInterface $form_state)
+  {
+    return $form['display_settings']['urls'];
   }
 
-    public function removeCategoryItemAjaxCallback(array &$form, FormStateInterface $form_state) {
-      return $form['chatbot_categories']['categories'];
+  /**
+   * 
+   * These functions are for adding/removing categories
+   * 
+   */
+  public function addCategory(array &$form, FormStateInterface $form_state)
+  {
+    $form_state->set('num_categories', $form_state->get('num_categories') + 1);
+    $form_state->setRebuild();
+  }
+  public function addCategoryAjaxCallback(array &$form, FormStateInterface $form_state)
+  {
+    return $form['chatbot_categories']['categories'];
+  }
+  public function removeCategoryItem(array &$form, FormStateInterface $form_state)
+  {
+    if ($form_state->get('num_categories') - 1 >= 0) {
+      $triggering_element = $form_state->getTriggeringElement();
+      $category_index = (int) str_replace('remove_category_', '', $triggering_element['#name']);
+      $categories = $form_state->get('skip_categories') ?? [];
+      $categories[] = $category_index;
+      $form_state->set("skip_categories", $categories);
+      $form_state->setRebuild();
     }
+  }
 
-  
-  
+  public function removeCategoryItemAjaxCallback(array &$form, FormStateInterface $form_state)
+  {
+    return $form['chatbot_categories']['categories'];
+  }
+
+
+
   /**
    * 
    * Context functions
    * 
    */
 
-   public function categoryChange(array &$form, FormStateInterface $form_state){
+  public function categoryChange(array &$form, FormStateInterface $form_state)
+  {
     $triggering_element = $form_state->getTriggeringElement();
     $form_state->set("selected_category", $triggering_element['#name']);
     $form_state->set('num_context_entries', NULL);
     $form_state->set('remove_contexts', NULL);
     $form_state->setRebuild();
-   }
+  }
 
-  public function categoryChangeAjax(array &$form, FormStateInterface $form_state) {
+  public function categoryChangeAjax(array &$form, FormStateInterface $form_state)
+  {
     // Get the selected category.
     return $form['chatbot_context']["context_container"];
   }
 
-  public function addContext(array &$form, FormStateInterface $form_state) {
+  public function addContext(array &$form, FormStateInterface $form_state)
+  {
     $form_state->set('num_context_entries', $form_state->get('num_context_entries') + 1);
     $form_state->setRebuild();
   }
-  public function addContextAjaxCallback(array &$form, FormStateInterface $form_state) {
+  public function addContextAjaxCallback(array &$form, FormStateInterface $form_state)
+  {
     return $form['chatbot_context']['context_container'];
   }
 
+  public function generateDefaultValue(array &$element, FormStateInterface $form_state, $text)
+  {
+    // Use the $customIntArgument to set the default value based on the integer.
+    // For example, you can use it to increment the default value by the integer.
+    return $text;
+  }
+
   // Updating the context
-  public function monitorContextChanges(array &$form, FormStateInterface $form_state){
+  public function monitorContextChanges(array &$form, FormStateInterface $form_state)
+  {
     $form['actions']['submit']['#disabled'] = true;
     $form_state->setRebuild();
   }
-  public function updateContext(array &$form, FormStateInterface $form_state) {
+  public function updateContext(array &$form, FormStateInterface $form_state)
+  {
     $config = $this->config('drupal_gpt.settings');
     //$form_state->set('context_updating', !$form_state->get('context_updating'));
 
@@ -547,39 +571,42 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
     $currentCategory = $form_state->get("selected_category");
 
     $contexts = $config->get('chatbot_context') ?? [];
-    if(!isset($contexts[$currentCategory])) $contexts[$currentCategory] = [];
-    
-    for ($i = 0; $i < $numContexts; $i++) {
-      if(isset($skipContexts[$i])){
-        // TODO: remove the contexts from the pinecone database
+    if (!isset($contexts[$currentCategory])) $contexts[$currentCategory] = [];
 
+    for ($i = 0; $i < $numContexts; $i++) {
+      if (isset($skipContexts[$i])) {
+        // TODO: remove the contexts from the pinecone database
+        // TODO: Remove from the textarea
         continue;
       };
       $skip = false;
-      foreach($contexts[$currentCategory] as $alreadyInserted){
-        if($alreadyInserted["context"] == $form_state->getValue('context_container')[$i]["context_textbox"]){
+      foreach ($contexts[$currentCategory] as $alreadyInserted) {
+        if ($alreadyInserted["context"] == $form_state->getValue('context_container')[$i]["context_textbox"]) {
           $skip = true;
         }
       }
 
-      if($skip) continue;
-      if($form_state->getValue('context_container')[$i]["context_textbox"] == "") continue;
+      if ($skip) continue;
+      if ($form_state->getValue('context_container')[$i]["context_textbox"] == "") continue;
       $context = $form_state->getValue('context_container')[$i]["context_textbox"];
       $contexts[$currentCategory][] = [
         "context" => $context,
-        "uuids" => ["1","2","3"]];
+        "uuids" => ["1", "2", "3"]
+      ];
     }
     $config->set('chatbot_context', $contexts);
     $config->save();
 
     $form_state->setRebuild();
   }
-  public function updateContextAjaxCallback(array &$form, FormStateInterface $form_state) {
+  public function updateContextAjaxCallback(array &$form, FormStateInterface $form_state)
+  {
     return $form['chatbot_context']['context_container'];
   }
 
   // Remove context
-  public function removeContext(array &$form, FormStateInterface $form_state) {
+  public function removeContext(array &$form, FormStateInterface $form_state)
+  {
 
     $triggering_element = $form_state->getTriggeringElement();
     $context_index = (int) str_replace('remove_context_', '', $triggering_element['#name']);
@@ -587,9 +614,9 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
     $contexts[] = $context_index;
     $form_state->set("remove_contexts", $contexts);
     $form_state->setRebuild();
-    
   }
-  public function removeContextAjaxCallback(array &$form, FormStateInterface $form_state) {
+  public function removeContextAjaxCallback(array &$form, FormStateInterface $form_state)
+  {
     return $form['chatbot_context']['context_container'];
   }
 
@@ -597,7 +624,8 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
 
 
   // Implement submitForm() to save the submitted values.
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state)
+  {
     $config = $this->config('drupal_gpt.settings');
     $config->set('openai_key', $form_state->getValue('openai_key'));
     $config->set('openai_model', $form_state->getValue('openai_model'));
@@ -625,12 +653,12 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
     $skipCategories = $form_state->get('skip_categories') ?? [];
     $numCategories = $form_state->get('num_categories');
     for ($i = 0; $i < $numCategories; $i++) {
-      if(isset($skipCategories[$i])) continue;
-      if($form_state->getValue('categories')[$i]["category"] == "") continue;
+      if (isset($skipCategories[$i])) continue;
+      if ($form_state->getValue('categories')[$i]["category"] == "") continue;
       $category = $form_state->getValue('categories')[$i]["category"];
       $categories[] = $category;
     }
-    
+
     $config->set('chatbot_categories', $categories);
 
     $config->save();
