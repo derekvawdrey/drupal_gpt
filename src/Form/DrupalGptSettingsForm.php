@@ -301,6 +301,13 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
     $selectedCategory = $form_state->get("selected_category") ?? $defaultCategory;
     $form_state->set("selected_category",$selectedCategory);
     foreach($config->get('chatbot_categories') as $category){
+      $added_attribute = [];
+      if($selectedCategory == $category){
+        $added_attribute = ['#attributes' => [
+          'style' => 'background-color: #92D293; color: white;', // Adjust the colors as desired
+        ]];
+      }
+
       $form['chatbot_context'][$category] = [
         '#type' => 'submit',
         '#value' => $this->t($category),
@@ -310,6 +317,7 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
           'callback' => '::categoryChangeAjax',
           'wrapper' => 'context-container',
         ],
+        $added_attribute
       ];
     }
     
@@ -365,21 +373,20 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
         // Create an accordion fieldset for each context entry.
         $form['chatbot_context']['context_container'][$i] = [
           '#type' => 'fieldset',
-          '#title' => 'Context ' . ($i + 1) . ", Category: " . $selectedCategory,
+          '#title' => 'Context ' . ($i + 1),
           '#collapsible' => TRUE,
           '#collapsed' => TRUE, // You can set this to FALSE if you want the fieldset to be initially expanded.
         ];
       
         // Add the context textbox within the accordion fieldset.
         $form['chatbot_context']['context_container'][$i]['context_textbox'] = [
-          '#type' => 'textarea',
-          '#value' => $text,
+          '#type' => 'textfield',
+          '#default_value' => $text,
           '#title' => $this->t('Context'),
           '#prefix' => '<div class="container-inline">',
           '#suffix' => '</div>',
           '#size' => 60,
           '#maxlength' => 1750,
-          '#rows' => 5,
           '#required' => TRUE,
         ];
         $form['chatbot_context']['context_container'][$i]['actions']['remove'] = [
@@ -508,7 +515,6 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
     $form_state->set("selected_category", $triggering_element['#name']);
     $form_state->set('num_context_entries', NULL);
     $form_state->set('remove_contexts', NULL);
-    $form_state->set('num_context_entries', NULL);
     $form_state->setRebuild();
    }
 
@@ -541,24 +547,31 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
     $currentCategory = $form_state->get("selected_category");
 
     $contexts = $config->get('chatbot_context') ?? [];
-    $contexts[$currentCategory] = [];
-    $currentIndex = 0;
+    if(!isset($contexts[$currentCategory])) $contexts[$currentCategory] = [];
+    
     for ($i = 0; $i < $numContexts; $i++) {
       if(isset($skipContexts[$i])){
         // TODO: remove the contexts from the pinecone database
 
         continue;
       };
-      if($form_state->getValue('context_container')[$currentIndex]["context_textbox"] == "") continue;
-      $context = $form_state->getValue('context_container')[$currentIndex]["context_textbox"];
+      $skip = false;
+      foreach($contexts[$currentCategory] as $alreadyInserted){
+        if($alreadyInserted["context"] == $form_state->getValue('context_container')[$i]["context_textbox"]){
+          $skip = true;
+        }
+      }
+
+      if($skip) continue;
+      if($form_state->getValue('context_container')[$i]["context_textbox"] == "") continue;
+      $context = $form_state->getValue('context_container')[$i]["context_textbox"];
       $contexts[$currentCategory][] = [
         "context" => $context,
         "uuids" => ["1","2","3"]];
-      $currentIndex ++;
     }
     $config->set('chatbot_context', $contexts);
     $config->save();
-    
+
     $form_state->setRebuild();
   }
   public function updateContextAjaxCallback(array &$form, FormStateInterface $form_state) {
