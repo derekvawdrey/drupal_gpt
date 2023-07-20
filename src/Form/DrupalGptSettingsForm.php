@@ -542,22 +542,23 @@ class DrupalGPTSettingsForm extends ConfigFormBase {
 
     $contexts = $config->get('chatbot_context') ?? [];
     $contexts[$currentCategory] = [];
-
+    $currentIndex = 0;
     for ($i = 0; $i < $numContexts; $i++) {
       if(isset($skipContexts[$i])){
         // TODO: remove the contexts from the pinecone database
 
         continue;
       };
-      if($form_state->getValue('context_container')[$i]["context_textbox"] == "") continue;
-      $context = $form_state->getValue('context_container')[$i]["context_textbox"];
+      if($form_state->getValue('context_container')[$currentIndex]["context_textbox"] == "") continue;
+      $context = $form_state->getValue('context_container')[$currentIndex]["context_textbox"];
       $contexts[$currentCategory][] = [
         "context" => $context,
         "uuids" => ["1","2","3"]];
+      $currentIndex ++;
     }
     $config->set('chatbot_context', $contexts);
     $config->save();
-
+    
     $form_state->setRebuild();
   }
   public function updateContextAjaxCallback(array &$form, FormStateInterface $form_state) {
