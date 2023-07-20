@@ -26,19 +26,27 @@ drupal_gpt.settings:
               type: string
               label: 'Name'
     chatbot_context:
-      type: sequence
-      label: 'Contexts'
-      sequence:
-          type: mapping
-          label: 'Context Entry'
-          mapping:
-            uuid:
-              type: list
-              label: 'Category'
-            number_of_context:
-              type: string
-              label: 'Category'
-            
+      type: map
+      label: 'Chatbot context'
+      mapping:
+        type: map
+        label: 'Category context'
+        mapping:
+          type: sequence
+          label: 'Category items'
+          sequence:
+            - type: map
+              label: 'Item properties'
+              mapping:
+                context:
+                  type: string
+                  label: 'Context value'
+                uuids:
+                  type: sequence
+                  label: 'UUIDs'
+                  sequence:
+                    - type: string
+                      label: 'UUID value'
     num_urls:
       type: integer
       label: 'Number of URLs'
