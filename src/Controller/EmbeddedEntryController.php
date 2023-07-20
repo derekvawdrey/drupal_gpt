@@ -104,9 +104,35 @@ class EmbeddedEntryController extends ControllerBase {
     
         return $chunks;
     }
+    /**
+     * 
+     * Using chatGPT we seperate out the sections of the paragraphs out into sections.  
+     * 
+     */
+    private function splitIntoSections($text){
+        $delimeter = "###";
+        $prompt = "Seperate these paragraphs into sections, Each section will be separated by a single delimeter '" . $delimeter . "' placed only at the beginning of the section. 
+        Be sure to include valuable information into each section and include any pertinent factual information such as numbers, contact information, and others. 
+
+        For example:
+        " . $delimeter . "title goes here: section summary goes here
+        " . $delimeter . "title goes here: section summary goes here
+        "
+        . "START PARAGRAPHS" . $text . "END PARAGRAPHS";
+
+        $messages = [
+            ["role"=>"system",
+            "content"=>$prompt],
+        ];
+        // Full summary of the text
+        $summary = $this->api_controller->returnMessageChainText($messages, 2000);
+        // Summaries split by delimeter
+        $summaries = explode($delimeter, $summary);
+        return $summaries;
+    }
 
     public function embedIntoPinecone(){
-        $string = "
+        $strings = ["
 
         Brigham Young University or BYU offers a program to train students to become school teachers. The BYU Elementary Education program prepares teachers to work in Kindergarten-6th grade classrooms (K-6 Utah Teaching License). Program courses emphasize evidence-based, age appropriate teaching practices for all children in each of the content areas of the core curriculum (math, literacy, science, social studies).
         
@@ -192,9 +218,7 @@ class EmbeddedEntryController extends ControllerBase {
         
         
         We are grateful for Delaney and all the other students who are working hard to become a teacher. If you want to learn more about the ElEd major, meet with an advisor or a student ambassador!
-        
-        
-        Teacher Salary
+        ", "Teacher Salary
         A common concern of prospective teachers is their salary. What will I make? How will I provide for my family? Well, we are here to help ease your fears.
         Welcome to another post in our 'Teacher Salaries' series! Today we want to share some insight from Todd Dawson, the Director of Human Resources for Alpine School District (one of the BYU partnership districts). Todd primarily works with 'secondary certified employee matters, ADA accommodations, teacher evaluation processes, and participate[s] in employee training on policies and procedures.' After talking to Todd, we were able to learn much more about what school districts are doing to help teachers with salary.
         As discussed in previous salary posts, there has been an increase in salary across the state of Utah. Todd explained to us how this works in all districts, and especially in Alpine.
@@ -210,16 +234,28 @@ class EmbeddedEntryController extends ControllerBase {
         To contact your advisor also know as an academic advisor call 801-422-3426, come to 350 MCKB during office hours, or email educationadvisement@byu.edu to contact the front desk of the advisement office or schedule an appointment.
         Advisement Office Hours are 9 AM - 5 PM Monday - Friday
         Visit this web page to schedule a time to meet with a student ambassador https://www.beateacherbyu.com/beateacherbyu
-        ";
-
-        $chunks = $this->splitTextIntoChunks($string, 100);
-        $current_index = "1";
-        foreach($chunks as $chunk){
-            $current_index .= "2";
-            \Drupal::logger("embeddings")->info($chunk);
-            $this->api_controller->insertContext($current_index, $chunk, "Elementary Education");
+        "];
+        foreach($strings as $string){
+            $chunks = $this->splitIntoSections($string);
+            foreach($chunks as $chunk){
+                \Drupal::logger("embeddings")->info($chunk);
+                if($chunk==$this->api_controller->getErrorMessage()) break;
+                if(empty($chunk)) continue;
+                $this->api_controller->insertContext($this->format_uuidv4(random_bytes(16)), $chunk, "Elementary Education");
+            }
         }
         return new Jsonresponse(["message"=>"successfully inserted"]);
+    }
+
+
+    private function format_uuidv4($data)
+    {
+    assert(strlen($data) == 16);
+
+    $data[6] = chr(ord($data[6]) & 0x0f | 0x40); // set version to 0100
+    $data[8] = chr(ord($data[8]) & 0x3f | 0x80); // set bits 6-7 to 10
+        
+    return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
     }
 
 }

@@ -65,6 +65,7 @@ class ApiController extends ControllerBase {
         curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
         $result = curl_exec($ch);
         curl_close($ch);
+        \Drupal::logger("errors")->info($result);
         return json_decode($result,true);
     }
 
@@ -190,7 +191,6 @@ class ApiController extends ControllerBase {
      */
     public function insertContext($id, $context, $category){
         $embedding = $this->getEmbeddingFromMessage($context);
-        \Drupal::logger("embeddings")->info("Embedding :)");
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $this->getPineconeIndex() . '/vectors/upsert');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -258,7 +258,7 @@ class ApiController extends ControllerBase {
 
         $post_fields = array(
             "vector" => $embedding,
-            "topK" => 6,
+            "topK" => 3,
             "includeValues" => false,
             "includeMetadata" => true
         );
@@ -307,7 +307,11 @@ class ApiController extends ControllerBase {
     public function returnMessageChainText($messages, int $max_tokens = 150, float $temperature = 0.7){
         $message_response = $this->messageChainAICall($messages, $max_tokens, $temperature);
         if(isset($message_response["choices"])) return $message_response["choices"][0]["message"]["content"];
-        return "There was an error generating the response.";
+        return $this->getErrorMessage();
     }
 
+
+    public function getErrorMessage(){
+        return "ERROR";
+    }
 }
