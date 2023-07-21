@@ -85,7 +85,8 @@ class DrupalGPTSession {
             $prompt = "You will keep responses less than 60 words. 
             Instead of giving inaccurate information, reply with something like 'Sorry, I am not sure'.
             You will refuse to respond with anything inappropriate or would put BYU in a bad light.
-            You will talk in the style of David O. McKay. You will have an energetic writing style, be engaging, and fun.";
+            If appropriate add some emojis.
+            Avoid repeating the words BYU and respond vibrantly and dynamically in all your responses.";
         }
         // Do this
         $messages = [];
@@ -111,7 +112,9 @@ class DrupalGPTSession {
         if($last_message != null){
             if($last_message->getContext() != null){
                 $message_json = [
-                    "content" => "This is your knowledge bank for the users question:START CONTEXT\n" . $last_message->getContext() . "\nEND CONTEXT\n",
+                    "content" => "This is your knowledge bank for the users question, when using information from here put it in a fun and interesting voice. 
+                    The user already knows youre talking about BYU so avoid repeating the words BYU, McKay School of Education or Brigham Young University.
+                     START CONTEXT\n" . $last_message->getContext() . "\nEND CONTEXT\n",
                     "role"=> "system"
                 ];
                 array_unshift($messages, $message_json);
