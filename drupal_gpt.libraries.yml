@@ -8,3 +8,5 @@ custom-form-styles:
   css:
     component:
       css/custom-form-styles.css: {}
+  js:
+    js/drupal-gpt-form.js: {}

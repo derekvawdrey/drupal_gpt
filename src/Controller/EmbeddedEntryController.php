@@ -25,7 +25,7 @@ class EmbeddedEntryController extends ControllerBase {
      *      - category
      * 
      */
-    public function updateEmbeddedEntry(Request $response){
+    public function updateEmbeddedEntry(Request $request){
         $id = $request->query->get('id');
         $context = $request->query->get('context');
         $category = $request->query->get('category');
@@ -46,7 +46,7 @@ class EmbeddedEntryController extends ControllerBase {
      *      - category
      * 
      */
-    public function insertEmbeddedEntry(Request $response){
+    public function insertEmbeddedEntry(Request $request){
         $id = $request->query->get('id');
         $context = $request->query->get('context');
         $category = $request->query->get('category');
@@ -63,11 +63,16 @@ class EmbeddedEntryController extends ControllerBase {
      *      - id
      * 
      */
-    public function deleteEmbeddedEntry(Request $response){
+    public function deleteEmbeddedEntryHelper(Request $request){
         $id = $request->query->get('id');
         if(empty($id)){
             return new JsonResponse(["error"=>"Requires id"]);
         }
+        
+    }
+
+    public function deleteEmbeddedEntry($id){
+        $this->api_controller->deleteContextFromId($id);
     }
 
 
@@ -113,7 +118,7 @@ class EmbeddedEntryController extends ControllerBase {
     private function splitIntoSections($text){
         $delimeter = "###";
         $prompt = "Seperate these paragraphs into sections, Each section will be separated by a single delimeter '" . $delimeter . "' placed only at the beginning of the section. 
-        Be sure to include valuable information into each section and include any pertinent factual information such as numbers, contact information, and others. 
+        Be sure to include ALL valuable information into each section and include numbers, contact information, and others.
 
         For example:
         " . $delimeter . "title goes here: section summary goes here
@@ -135,6 +140,20 @@ class EmbeddedEntryController extends ControllerBase {
 
     /**
      * 
+     * @request POST context - The text of the document
+     * @request POST category - What category does the context belong to?
+     * @return JsonResponse, Gives the user a general uuid to attribute to that specific context, and then a list of uuids
+     * 
+     */
+    public function embedIntoPineconeHelper(Request $request){
+        $context = \Drupal::request()->request->get('context');
+        $category = \Drupal::request()->request->get('category');
+        // If the context is too large to be processed, we will split it into seperate chunks to be summarized
+        return $this->embedIntoPinecone($context, $category);
+    }
+
+     /**
+     * 
      * This function will take a POST parameter 'context' and then 
      *  1. Seperate it out into chunks of 1750 words
      *  2. Have openAI seperate it out into section summaries
@@ -144,10 +163,7 @@ class EmbeddedEntryController extends ControllerBase {
      * @return JsonResponse, Gives the user a general uuid to attribute to that specific context, and then a list of uuids
      * 
      */
-    public function embedIntoPinecone(Request $request){
-        $context = \Drupal::request()->request->get('context');
-        $category = \Drupal::request()->request->get('category');
-        // If the context is too large to be processed, we will split it into seperate chunks to be summarized
+    public function embedIntoPinecone($context, $category){
         $contexts = $this->splitTextIntoChunks($context,1750);
 
         // This is the general uuid for the group of contexts
@@ -156,7 +172,6 @@ class EmbeddedEntryController extends ControllerBase {
         foreach($contexts as $string){
             $chunks = $this->splitIntoSections($string);
             foreach($chunks as $chunk){
-                \Drupal::logger("embeddings")->info($chunk);
                 if($chunk==$this->api_controller->getErrorMessage()) break;
                 if(empty($chunk)) continue;
                 $current_uuid = $this->format_uuidv4(random_bytes(16));
@@ -164,7 +179,7 @@ class EmbeddedEntryController extends ControllerBase {
                 $this->api_controller->insertContext($current_uuid, $chunk, $category);
             }
         }
-        return new Jsonresponse(["uuid"=>$general_uuid, "vector_ids"=>$uuids]);
+        return ["uuid"=>$general_uuid, "vector_ids"=>$uuids];
     }
 
     // TODO: Move to a utilities class

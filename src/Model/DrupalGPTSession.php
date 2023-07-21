@@ -111,8 +111,8 @@ class DrupalGPTSession {
         if($last_message != null){
             if($last_message->getContext() != null){
                 $message_json = [
-                    "content" => "START CONTEXT\n" . $last_message->getContext() . "\nEND CONTEXT\n",
-                    "role"=> "user"
+                    "content" => "This is your knowledge bank for the users question:START CONTEXT\n" . $last_message->getContext() . "\nEND CONTEXT\n",
+                    "role"=> "system"
                 ];
                 array_unshift($messages, $message_json);
             }

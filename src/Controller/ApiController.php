@@ -65,7 +65,6 @@ class ApiController extends ControllerBase {
         curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
         $result = curl_exec($ch);
         curl_close($ch);
-        \Drupal::logger("errors")->info($result);
         return json_decode($result,true);
     }
 
@@ -246,7 +245,7 @@ class ApiController extends ControllerBase {
      */
     public function getContextFromMessage($message, $category){
 
-        $embedding = $this->getEmbeddingFromMessage($message . "Program is: " . $category);
+        $embedding = $this->getEmbeddingFromMessage($message);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $this->getPineconeIndex() . '/query');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -258,7 +257,8 @@ class ApiController extends ControllerBase {
 
         $post_fields = array(
             "vector" => $embedding,
-            "topK" => 3,
+            "topK" => 2,
+            "filter"=>["category"=>['$eq'=>$category]],
             "includeValues" => false,
             "includeMetadata" => true
         );

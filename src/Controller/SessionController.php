@@ -59,10 +59,10 @@ class SessionController extends ControllerBase {
      * Handle a user message and generate an API response
      * 
      */
-    public function processUserMessage($session_id, $message, $category="General Information"){
+    public function processUserMessage($session_id, $message, $category="General Education"){
         $session = $this->getSession($session_id);
         $message_context = $this->api_controller->getContextFromMessage($message, $category);
-        $general_message_context = $this->api_controller->getContextFromMessage($message, "General Information");
+        $general_message_context = $this->api_controller->getContextFromMessage($message, "General Education");
         $message_context .= $general_message_context;
         $session->addMessage($message, $message_context, true, false);
         $ai_message_text = $this->api_controller->returnMessageChainText($session->generateMessageArray());
