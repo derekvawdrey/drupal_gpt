@@ -24,7 +24,7 @@ DrupalGPT is the ultimate solution for making your website more engaging, conver
 ### Future todo 
 - [ ] Enable a rate limit per conversation/per hour
 - [ ] Optimize the accuracy meter
-- [ ] Allow users to upload information per category
+- [x] Allow users to upload information per category
 - [ ] Allow the changing of the chatbot name
 - [ ] Allow theme customization for the chatbot
-- [ ] Optimze the user input so that more accurate information can be pulled based on what the user is talking about. This will pull previous context from the previous questions into the users query.
+- [x] Optimze the user input so that more accurate information can be pulled based on what the user is talking about. This will pull previous context from the previous questions into the users query.
