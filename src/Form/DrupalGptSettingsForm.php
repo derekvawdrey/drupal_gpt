@@ -220,6 +220,12 @@ class DrupalGPTSettingsForm extends ConfigFormBase
       '#default_value' => $config->get('enabled_accuracy_meter'),
       '#description' => $this->t('Disabling this feature will allow you to save money, but will not allow the AI to determine if a message is accurate'),
     ];
+    $form['openai_settings']['enabled_filter'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Enable Filter'),
+      '#default_value' => $config->get('enabled_filter'),
+      '#description' => $this->t('Enable a filter to stop AI from sending inappropriate, offensive, or otherwise sexual content.'),
+    ];
   }
   private function pineconeSettings(array &$form, FormStateInterface &$form_state, $config)
   {
@@ -667,6 +673,7 @@ class DrupalGPTSettingsForm extends ConfigFormBase
     $config->set('openai_key', $form_state->getValue('openai_key'));
     $config->set('openai_model', $form_state->getValue('openai_model'));
     $config->set('enabled_accuracy_meter', $form_state->getValue('enabled_accuracy_meter'));
+    $config->set('enabled_filter', $form_state->getValue('enabled_filter'));
     $config->set('openai_model_accuracy', $form_state->getValue('openai_model_accuracy'));
     $config->set('pinecone_environment', $form_state->getValue('pinecone_environment'));
     $config->set('pinecone_key', $form_state->getValue('pinecone_key'));

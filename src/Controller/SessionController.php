@@ -72,6 +72,7 @@ class SessionController extends ControllerBase {
                 "message" => 
                     [ 
                         "accuracy" => $message_object->getAccuracy(),
+                        "inappropriate" => $message_object->getInappropriate(),
                         "message" => $message_object->getMessage(),
                         "context_provided" => $message_object->getContext(),
                     ],

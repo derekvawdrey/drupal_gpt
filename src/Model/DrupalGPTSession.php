@@ -81,12 +81,9 @@ class DrupalGPTSession {
 
     public function generateMessageArray($prompt = ""){
 
-        if(empty($prompt)){
-            $prompt = "You will keep responses less than 60 words. 
-            Instead of giving inaccurate information, reply with something like 'Sorry, I am not sure'.
-            You will refuse to respond with anything inappropriate or would put BYU in a bad light.
-            If appropriate add some emojis.
-            Avoid repeating the words BYU and respond vibrantly and dynamically in all your responses.";
+        if(empty($prompt)) {
+            $prompt = " Find the relevant information from the knowledge bank, then answer the question based on relevant information. In case you do not have enough information say \"I don't know\". 
+            Be converstaional, fun and interact with the user.";
         }
         // Do this
         $messages = [];
@@ -112,9 +109,11 @@ class DrupalGPTSession {
         if($last_message != null){
             if($last_message->getContext() != null){
                 $message_json = [
-                    "content" => "This is your knowledge bank for the users question, when using information from here put it in a fun and interesting voice. 
+                    "content" => "This is your knowledge bank for the users question.
                     The user already knows youre talking about BYU so avoid repeating the words BYU, McKay School of Education or Brigham Young University.
-                     START CONTEXT\n" . $last_message->getContext() . "\nEND CONTEXT\n",
+                    Find the relevant information from the knowledge bank, then answer the question based on relevant information. In case you do not have enough information say \"I don't know\". 
+                    Be converstaional, fun and interact with the user.
+                     START KNOWLEDGE BANK\n" . $last_message->getContext() . "\nEND KNOWLEDGE BANK\n",
                     "role"=> "system"
                 ];
                 array_unshift($messages, $message_json);

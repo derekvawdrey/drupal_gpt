@@ -1,10 +1,20 @@
 (function ($) {
     Drupal.behaviors.drupalGPTCustomBehavior = {
       attach: function (context, settings) {
+
+        function generate_uuidv4() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,
+            function(c) {
+               var uuid = Math.random() * 16 | 0, v = c == 'x' ? uuid : (uuid & 0x3 | 0x8);
+               return uuid.toString(16);
+            });
+         }
+         
+
         // Access the customVariable passed from PHP.
         var chatbotCategoy = settings.drupal_gpt.category;
         var toggled = false;
-        const uuid = crypto.randomUUID();
+        const uuid = generate_uuidv4();
         var processingMessage = false;
         var chatbotTypingElement = `
         <div class="chatbot--writing typing">
@@ -84,17 +94,18 @@
 
             $(".chatbot__window--messages").animate({ scrollTop: $('.chatbot__window--messages').prop("scrollHeight")}, 400);
         }
-        function appendUserMessage(message){
+
+        function appendUserMessage(message) {
             $(".chatbot__window--messages").append(userMessage.replace("{MESSAGE}",message));
             $(".chatbot__window--messages").animate({ scrollTop: $('.chatbot__window--messages').prop("scrollHeight")}, 400);
         }
 
-        function appendChatbotIsWriting(){
+        function appendChatbotIsWriting() {
             $(".chatbot--writing").remove();
             $(".chatbot__window--messages").append(chatbotTypingElement);
         }
         
-        function initListeners(){
+        function initListeners() {
 
             $(".chatbot__toggle").on('click', function(){
                 $toggle_value = !toggled ? "100%" : "0px";

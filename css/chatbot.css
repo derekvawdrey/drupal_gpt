@@ -30,7 +30,7 @@
     box-shadow: 5px 5px 15px rgba(119, 119, 119, 0.5);
 }
 
-.chatbot__window--header{
+.chatbot__window--header {
     height:48px;
     min-height: 48px;
     background-color:var(--chatbot-white);

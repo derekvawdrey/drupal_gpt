@@ -1,4 +1,4 @@
-name: drupal_gpt
+name: DrupalGPT
 type: module
 description: A openAI API chatbot that answers questions about your website
 package: Custom

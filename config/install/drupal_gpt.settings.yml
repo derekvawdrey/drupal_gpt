@@ -12,3 +12,4 @@ chatbot_categories: []
 chatbot_context: []
 num_urls: 1
 enabled_accuracy_meter: false
+enabled_filter: true

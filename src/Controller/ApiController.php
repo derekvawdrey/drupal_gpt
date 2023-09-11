@@ -123,6 +123,35 @@ class ApiController extends ControllerBase {
 
     /**
      * 
+     * @param string $message
+     * @return https://platform.openai.com/docs/api-reference/moderations/object
+     * 
+     */
+    private function checkMessageModeration(string $message){
+        $ch = curl_init();
+        $url = 'https://api.openai.com/v1/moderations';
+        $api_key = $this->getApiKey();
+        if(empty($accuracy_model)) $accuracy_model = $this->getGptModel();
+        $post_fields = array(
+            "model" => "text-moderation-latest",
+            "input" => $message,
+        );
+        $header = [
+            'Content-Type: application/json',
+            'Authorization: Bearer '. $api_key
+        ];
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post_fields));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+        $result = curl_exec($ch);
+        curl_close($ch);
+        return json_decode($result,true);
+    }
+    
+    /**
+     * 
      * @param string $message, convert the users message into a embedding vector
      * @param array embedding vector
      * 
@@ -207,7 +236,7 @@ class ApiController extends ControllerBase {
                     "metadata"=>[
                         "context"=>$context,
                         "category"=>$category,
-                    ],   
+                    ],
                 ],
             ],
         );
@@ -257,7 +286,7 @@ class ApiController extends ControllerBase {
 
         $post_fields = array(
             "vector" => $embedding,
-            "topK" => 2,
+            "topK" => 4,
             "filter"=>["category"=>['$eq'=>$category]],
             "includeValues" => false,
             "includeMetadata" => true
@@ -294,6 +323,16 @@ class ApiController extends ControllerBase {
             return (float)$return_message;
         }
         return 0;
+    }
+
+    public function shouldMessageBeFilter($message){
+        $result = $this->checkMessageModeration($message);
+        \Drupal::logger("moderation_results")->info(json_encode($result));
+        if(isset($result["results"]) && $result["results"][0]["flagged"]){
+            
+            return true;
+        }
+        return false;
     }
 
     /**
