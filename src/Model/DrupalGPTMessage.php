@@ -48,14 +48,18 @@ class DrupalGPTMessage {
       if($enabled){
          if($this->api_controller->shouldMessageBeFilter($this->message)){
 
+            /** Todo: Allow the user to set replacement messages in the settings menu */
             $replacement_messages = [
                "That took a wild turn! 😅 Have you ever used chatbots for educational purposes before?",
-               "Time for some education-related chat! 😁 How can I assist you today?",
+               "Let's change gears a little bit, what brings you to the McKay School of Education",
                "Positive vibes only! 🌞 What's your dream career path after graduating from the McKay School of Education?",
                "Time to refocus on your interests! 🧐 What's the most unique class you've taken at the McKay School of Education?",
                "Let's keep the conversation awesome! 😄 Have you had any memorable experiences at BYU or in the McKay School of Education?",
                "Now, here's a thought-provoking question: What do you think sets the McKay School of Education at BYU apart from other institutions?",
-               ""
+               "🌵...",
+               "🌞...",
+               "Lets have some 🌮 instead. Okay? You can't say no to some free digital 🌮's.",
+               "Why did the scarecrow win an award? Because",
             ];
 
             $random_index = array_rand($replacement_messages);
