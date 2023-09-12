@@ -17,11 +17,14 @@ DrupalGPT is the ultimate solution for making your website more engaging, conver
 4. Create a folder called "drupal_gpt" and put the files in this repo there
 5. Enable the Module
 6. Insert configuration variables into the "Extend" portion of the admin panel
-7. Create categories, and insert knowledge bank information for each category
-8. Specify where you want DrupalGPT to appear.
-9. Chat with DrupalGPT
+7. Specify where you want DrupalGPT to appear.
+8. Chat with DrupalGPT
 
 
 ### Future todo 
 - [ ] Enable a rate limit per conversation/per hour
+- [ ] Optimize the accuracy meter
+- [ ] Allow users to upload information per category
+- [ ] Allow the changing of the chatbot name
 - [ ] Allow theme customization for the chatbot
+- [ ] Optimze the user input so that more accurate information can be pulled based on what the user is talking about. This will pull previous context from the previous questions into the users query.

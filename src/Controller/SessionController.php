@@ -62,6 +62,7 @@ class SessionController extends ControllerBase {
     public function processUserMessage($session_id, $message, $category="General Education"){
         $session = $this->getSession($session_id);
         $message_context = $this->api_controller->getContextFromMessage($message, $category);
+        \Drupal::logger("ee")->info($message);
         $general_message_context = $this->api_controller->getContextFromMessage($message, "General Education");
         $message_context .= $general_message_context;
         $session->addMessage($message, $message_context, true, false);
