@@ -44,7 +44,7 @@ class ApiController extends ControllerBase {
      * @return Json The json of the message returned
      * 
      */
-    private function messageChainAICall($messages, int $max_tokens = 350, float $temperature = 0.7){
+    private function messageChainAICall($messages, int $max_tokens = 250, float $temperature = 0.7){
         $ch = curl_init();
         $url = 'https://api.openai.com/v1/chat/completions';
         $api_key = $this->getApiKey();
@@ -343,7 +343,7 @@ class ApiController extends ControllerBase {
      * @return string, the AI's response
      * 
      */
-    public function returnMessageChainText($messages, int $max_tokens = 350, float $temperature = 0.7){
+    public function returnMessageChainText($messages, int $max_tokens = 150, float $temperature = 0.7){
         $message_response = $this->messageChainAICall($messages, $max_tokens, $temperature);
         if(isset($message_response["choices"])) return $message_response["choices"][0]["message"]["content"];
         return $this->getErrorMessage();

@@ -82,9 +82,8 @@ class DrupalGPTSession {
     public function generateMessageArray($prompt = ""){
 
         if(empty($prompt)) {
-            $prompt = "Be converstational, engaging, and interact with the user. 
-            Answer questions based on the information in the knowledge bank, refrain from simply restating the information. 
-            Ask questions to further the conversation, and keep the conversation light/enjoyable.";
+            $prompt = " Find the relevant information from the knowledge bank, then answer the question based on relevant information. In case you do not have enough information say \"I don't know\". 
+            Be converstaional, fun and interact with the user.";
         }
         // Do this
         $messages = [];
@@ -111,7 +110,9 @@ class DrupalGPTSession {
             if($last_message->getContext() != null){
                 $message_json = [
                     "content" => "This is your knowledge bank for the users question.
+                    The user already knows youre talking about BYU so avoid repeating the words BYU, McKay School of Education or Brigham Young University.
                     Find the relevant information from the knowledge bank, then answer the question based on relevant information. In case you do not have enough information say \"I don't know\". 
+                    Be converstaional, fun and interact with the user.
                      START KNOWLEDGE BANK\n" . $last_message->getContext() . "\nEND KNOWLEDGE BANK\n",
                     "role"=> "system"
                 ];

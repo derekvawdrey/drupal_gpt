@@ -8,7 +8,7 @@ id: node.drupal_gpt_session.chat_session_timestamp
 field_name: chat_session_timestamp
 entity_type: node
 bundle: drupal_gpt_session
-label: 'DrupalGPT Session Timestamp'
+label: 'DrupalGPT Session Id'
 description: ''
 required: true
 translatable: false

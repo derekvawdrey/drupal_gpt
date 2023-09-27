@@ -363,9 +363,8 @@ class DrupalGPTSettingsForm extends ConfigFormBase
 
     $form['chatbot_context']['context_container'] = [
       '#type' => 'container',
-      '#prefix' => '<div id="context-container"><h3 class="observe_change_category">Category: ' . $selectedCategory . '</h3>',
+      '#prefix' => '<div id="context-container"><h3>Category: ' . $selectedCategory . '</h3>',
       '#suffix' => '</div>',
-      
       '#tree' => TRUE,
     ];
 

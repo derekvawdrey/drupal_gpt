@@ -118,7 +118,7 @@ class EmbeddedEntryController extends ControllerBase {
     private function splitIntoSections($text){
         $delimeter = "###";
         $prompt = "Seperate these paragraphs into sections, Each section will be separated by a single delimeter '" . $delimeter . "' placed only at the beginning of the section. 
-        Do not rewrite any of the information, simply just organize it based on sections.
+        Be sure to include ALL information into each section and include numbers, contact information, and others. Write the summaries in a fun and conversational tone.
 
         For example:
         " . $delimeter . "title goes here: section text goes here
